@@ -21,6 +21,13 @@ export default function Home() {
     }
   ]);
 
+  const validateAlphanumeric = (value: string) => {
+    if (!value.trim() || /^[^a-zA-Z0-9]*$/.test(value)) {
+      return false;
+    }
+    return /^[a-zA-Z0-9_]*$/.test(value);
+  };
+
   const addDomain = () => {
     setDomains([
       ...domains,
@@ -44,9 +51,55 @@ export default function Home() {
     ]);
   };
 
-  const domainOptions = domains.map((d) => d.name);
+  // ドメイン名と属性名が空白や記号のみの場合は除外
+  const isValidName = (name: string) => {
+    return name.trim() !== "" && /[a-zA-Z0-9_]/.test(name);
+  };
+
+  const domainOptions = domains
+    .map((d) => d.name)
+    .filter(isValidName);
+  const attributeOptions = domains.flatMap((d) =>
+    isValidName(d.name)
+      ? d.attributes
+          .filter((a) => isValidName(a.name))
+          .map((a) => `${d.name}.${a.name}`)
+      : []
+  );
+  const selectionOptions = [...domainOptions, ...attributeOptions];
 
   const handleSubmit = () => {
+    if (!projectName.trim()) {
+      alert('プロジェクト名を入力してください');
+      return;
+    }
+
+    for (const domain of domains) {
+      if (!domain.name.trim()) {
+        alert('ドメイン名を入力してください');
+        return;
+      }
+      for (const attr of domain.attributes) {
+        if (!attr.name.trim() || !attr.type.trim()) {
+          alert('属性の名前と型を入力してください');
+          return;
+        }
+      }
+      for (const method of domain.methods) {
+        if (!method.name.trim()) {
+          alert('メソッド名を入力してください');
+          return;
+        }
+      }
+    }
+
+    for (const usecase of usecases) {
+      if (!usecase.name.trim()) {
+        alert('ユースケース名を入力してください');
+        return;
+      }
+    }
+
     // TODO: Send data to backend
   };
 
@@ -173,8 +226,7 @@ export default function Home() {
                           setDomains(updated);
                         }}
                       />
-                      <input
-                        placeholder="inputs"
+                      <select
                         className="border border-zinc-700 bg-zinc-800 p-2 rounded w-1/3"
                         value={m.inputs}
                         onChange={(e) => {
@@ -182,9 +234,13 @@ export default function Home() {
                           updated[domainIndex].methods[i].inputs = e.target.value;
                           setDomains(updated);
                         }}
-                      />
-                      <input
-                        placeholder="output"
+                      >
+                        <option value="">入力の型を選択</option>
+                        {selectionOptions.map((option, idx) => (
+                          <option key={idx} value={option}>{option}</option>
+                        ))}
+                      </select>
+                      <select
                         className="border border-zinc-700 bg-zinc-800 p-2 rounded w-1/3"
                         value={m.output}
                         onChange={(e) => {
@@ -192,7 +248,12 @@ export default function Home() {
                           updated[domainIndex].methods[i].output = e.target.value;
                           setDomains(updated);
                         }}
-                      />
+                      >
+                        <option value="">出力の型を選択</option>
+                        {selectionOptions.map((option, idx) => (
+                          <option key={idx} value={option}>{option}</option>
+                        ))}
+                      </select>
                     </div>
                   ))}
                   <button
@@ -248,7 +309,7 @@ export default function Home() {
                       }}
                     >
                       <option value="">選択</option>
-                      {domainOptions.map((field, idx) => (
+                      {selectionOptions.map((field, idx) => (
                         <option key={idx} value={field}>{field}</option>
                       ))}
                     </select>
@@ -279,7 +340,7 @@ export default function Home() {
                       }}
                     >
                       <option value="">選択</option>
-                      {domainOptions.map((field, idx) => (
+                      {selectionOptions.map((field, idx) => (
                         <option key={idx} value={field}>{field}</option>
                       ))}
                     </select>
