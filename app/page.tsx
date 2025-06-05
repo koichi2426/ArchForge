@@ -68,19 +68,21 @@ export default function Home() {
     return name.trim() !== "" && /[a-zA-Z0-9_]/.test(name);
   };
 
-  const domainOptions = useMemo(() =>
-    domains.map((d) => d.name).filter(isValidName), [domains]
+  const domainOptions = useMemo(
+    () => domains.map((d) => d.name).filter(isValidName),
+    [domains]
   );
-  const attributeOptions = useMemo(() =>
-    domains.flatMap((d) =>
-      isValidName(d.name)
-        ? d.attributes
-            .filter((a) => isValidName(a.name))
-            .map((a) => `${d.name}.${a.name}`)
-        : []
-    ), [domains]
+  const attributeOptions = useMemo(
+    () =>
+      domains
+        .flatMap((d) => d.attributes.map((a) => a.name))
+        .filter(isValidName),
+    [domains]
   );
-  const selectionOptions = useMemo(() => [...domainOptions, ...attributeOptions], [domainOptions, attributeOptions]);
+  const selectionOptions = useMemo(
+    () => Array.from(new Set([...domainOptions, ...attributeOptions])),
+    [domainOptions, attributeOptions]
+  );
 
   const handleSubmit = async () => {
     // 入力値の検証
