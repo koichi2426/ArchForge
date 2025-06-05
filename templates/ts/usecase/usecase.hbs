@@ -1,0 +1,44 @@
+{{#each imports}}import { {{name}} } from '{{from}}';
+{{/each}}
+
+// 入力ポート
+export interface {{inputInterface.name}} {
+{{#each inputInterface.fields}}  {{name}}: {{type}};
+{{/each}}
+}
+
+// 出力ポート
+export interface {{outputInterface.name}} {
+{{#each outputInterface.fields}}  {{name}}: {{type}};
+{{/each}}
+}
+
+// プレゼンター（出力ポート変換）
+export interface {{presenter.name}} {
+  output({{presenter.inputArg}}: {{presenter.inputType}}): {{outputInterface.name}};
+}
+
+// ユースケースインターフェース（入力ポート）
+export interface {{usecaseInterface.name}} {
+  execute(input: {{inputInterface.name}}): Promise<{{outputInterface.name}}>;
+}
+
+export function {{factoryFunction.name}}(
+  {{#each factoryFunction.deps}}{{name}}: {{type}}{{#unless @last}}, {{/unless}}{{/each}}
+): {{usecaseInterface.name}} {
+  return new {{interactor.name}}(
+    {{#each factoryFunction.deps}}{{name}}{{#unless @last}}, {{/unless}}{{/each}}
+  );
+}
+
+// ユースケース本体
+export class {{interactor.name}} implements {{usecaseInterface.name}} {
+  constructor(
+  ) {
+    // 各実装をお願いします。
+  }
+
+  async execute(input: {{inputInterface.name}}): Promise<{{outputInterface.name}}> {
+    // 各実装をお願いします。
+  }
+}
