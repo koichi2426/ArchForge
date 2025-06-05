@@ -1,18 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 export default function Home() {
+  type Domain = {
+    name: string;
+    domainType: string;
+    attributes: { name: string; type: string }[];
+    methods: { name: string; inputs: string; output: string }[];
+  };
   const [projectName, setProjectName] = useState("");
   const [language, setLanguage] = useState("typescript");
-  const [domains, setDomains] = useState([
-    {
-      name: "",
-      domainType: "entity",
-      attributes: [{ name: "", type: "" }],
-      methods: [{ name: "", inputs: "", output: "" }]
-    }
-  ]);
+  const [domains, setDomains] = useState<Domain[]>([]);
   const [usecases, setUsecases] = useState([
     {
       name: "",
@@ -20,6 +19,19 @@ export default function Home() {
       outputFields: [{ name: "" }]
     }
   ]);
+
+  useEffect(() => {
+    if (domains.length === 0) {
+      setDomains([
+        {
+          name: "",
+          domainType: "entity",
+          attributes: [{ name: "", type: "" }],
+          methods: [{ name: "", inputs: "", output: "" }]
+        }
+      ]);
+    }
+  }, []);
 
   const validateAlphanumeric = (value: string) => {
     if (!value.trim() || /^[^a-zA-Z0-9]*$/.test(value)) {
@@ -56,24 +68,26 @@ export default function Home() {
     return name.trim() !== "" && /[a-zA-Z0-9_]/.test(name);
   };
 
-  const domainOptions = domains
-    .map((d) => d.name)
-    .filter(isValidName);
-  const attributeOptions = domains.flatMap((d) =>
-    isValidName(d.name)
-      ? d.attributes
-          .filter((a) => isValidName(a.name))
-          .map((a) => `${d.name}.${a.name}`)
-      : []
+  const domainOptions = useMemo(() =>
+    domains.map((d) => d.name).filter(isValidName), [domains]
   );
-  const selectionOptions = [...domainOptions, ...attributeOptions];
+  const attributeOptions = useMemo(() =>
+    domains.flatMap((d) =>
+      isValidName(d.name)
+        ? d.attributes
+            .filter((a) => isValidName(a.name))
+            .map((a) => `${d.name}.${a.name}`)
+        : []
+    ), [domains]
+  );
+  const selectionOptions = useMemo(() => [...domainOptions, ...attributeOptions], [domainOptions, attributeOptions]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    // 入力値の検証
     if (!projectName.trim()) {
       alert('プロジェクト名を入力してください');
       return;
     }
-
     for (const domain of domains) {
       if (!domain.name.trim()) {
         alert('ドメイン名を入力してください');
@@ -92,15 +106,31 @@ export default function Home() {
         }
       }
     }
-
     for (const usecase of usecases) {
       if (!usecase.name.trim()) {
         alert('ユースケース名を入力してください');
         return;
       }
     }
-
-    // TODO: Send data to backend
+    // APIにPOSTしてzipをダウンロード
+    const res = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ projectName, language, domains, usecases })
+    });
+    if (!res.ok) {
+      alert('プロジェクト生成に失敗しました');
+      return;
+    }
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'project.zip';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
   };
 
   return (
