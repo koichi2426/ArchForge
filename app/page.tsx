@@ -47,260 +47,278 @@ export default function Home() {
   const domainOptions = domains.map((d) => d.name);
 
   const handleSubmit = () => {
-    // POST to backend to generate project
+    // TODO: Send data to backend
   };
 
   return (
-    <div className="min-h-screen p-8 sm:p-20 flex flex-col gap-8">
-      <h1 className="text-2xl font-bold">ArchForge プロジェクト生成</h1>
+    <div className="min-h-screen bg-gradient-to-b from-zinc-900 to-zinc-950 text-white flex flex-col font-sans">
+      <header className="bg-zinc-900 px-8 py-5 shadow-md border-b border-zinc-700 flex justify-between items-center">
+        <h1 className="text-3xl font-extrabold tracking-wide">ArchForge</h1>
+        <span className="text-sm text-zinc-400">Clean Architecture Project Generator</span>
+      </header>
 
-      <label className="flex flex-col gap-2">
-        <span>プロジェクト名</span>
-        <input
-          className="border p-2 rounded"
-          value={projectName}
-          onChange={(e) => setProjectName(e.target.value)}
-        />
-      </label>
+      <main className="flex-1 px-6 sm:px-10 md:px-20 py-12 flex flex-col gap-14">
+        <section>
+          <h2 className="text-3xl font-bold mb-6">プロジェクト設定</h2>
+          <div className="grid md:grid-cols-2 gap-6">
+            <label className="flex flex-col gap-2">
+              <span className="font-medium text-sm">プロジェクト名</span>
+              <input
+                className="border border-zinc-700 bg-zinc-800 p-3 rounded text-base placeholder-zinc-500"
+                placeholder="例: OrderManagementSystem"
+                value={projectName}
+                onChange={(e) => setProjectName(e.target.value)}
+              />
+            </label>
 
-      <label className="flex flex-col gap-2">
-        <span>使用するプログラミング言語</span>
-        <select
-          className="border p-2 rounded"
-          value={language}
-          onChange={(e) => setLanguage(e.target.value)}
-        >
-          <option value="typescript">TypeScript</option>
-          <option value="go">Go</option>
-          <option value="python">Python</option>
-          <option value="ruby">Ruby</option>
-          <option value="java">Java</option>
-        </select>
-      </label>
+            <label className="flex flex-col gap-2">
+              <span className="font-medium text-sm">使用するプログラミング言語</span>
+              <select
+                className="border border-zinc-700 bg-zinc-800 p-3 rounded text-base"
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+              >
+                <option value="typescript">TypeScript</option>
+                <option value="go">Go</option>
+                <option value="python">Python</option>
+                <option value="ruby">Ruby</option>
+                <option value="java">Java</option>
+              </select>
+            </label>
+          </div>
+        </section>
 
-      <h2 className="text-xl font-semibold mt-8">ドメインモデル定義</h2>
+        <section>
+          <h2 className="text-3xl font-semibold mb-4">ドメインモデル定義</h2>
+          <p className="text-sm text-zinc-400 mb-6">ドメインオブジェクトや振る舞いを定義してください（エンティティ・値オブジェクト・ドメインサービス）。</p>
 
-      {domains.map((domain, domainIndex) => (
-        <div key={domainIndex} className="border p-4 rounded-md flex flex-col gap-4 bg-zinc-900">
-          <label className="flex flex-col gap-2">
-            <span>ドメイン名</span>
-            <input
-              className="border p-2 rounded"
-              value={domain.name}
-              onChange={(e) => {
-                const updated = [...domains];
-                updated[domainIndex].name = e.target.value;
-                setDomains(updated);
-              }}
-            />
-          </label>
+          <div className="flex flex-col gap-6">
+            {domains.map((domain, domainIndex) => (
+              <div key={domainIndex} className="border border-zinc-700 bg-zinc-900 p-6 rounded-xl flex flex-col gap-5 shadow-md">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <input
+                    className="border border-zinc-700 bg-zinc-800 p-2 rounded text-base"
+                    placeholder="ドメイン名（例: Order）"
+                    value={domain.name}
+                    onChange={(e) => {
+                      const updated = [...domains];
+                      updated[domainIndex].name = e.target.value;
+                      setDomains(updated);
+                    }}
+                  />
+                  <select
+                    className="border border-zinc-700 bg-zinc-800 p-2 rounded text-base"
+                    value={domain.domainType}
+                    onChange={(e) => {
+                      const updated = [...domains];
+                      updated[domainIndex].domainType = e.target.value;
+                      setDomains(updated);
+                    }}
+                  >
+                    <option value="entity">エンティティ</option>
+                    <option value="valueObject">値オブジェクト</option>
+                    <option value="domainService">ドメインサービス</option>
+                  </select>
+                </div>
 
-          <label className="flex flex-col gap-2">
-            <span>ドメイン種別</span>
-            <select
-              className="border p-2 rounded"
-              value={domain.domainType}
-              onChange={(e) => {
-                const updated = [...domains];
-                updated[domainIndex].domainType = e.target.value;
-                setDomains(updated);
-              }}
-            >
-              <option value="entity">エンティティ</option>
-              <option value="valueObject">値オブジェクト</option>
-              <option value="domainService">ドメインサービス</option>
-            </select>
-          </label>
+                <div className="flex flex-col gap-2">
+                  <span className="text-sm font-semibold text-zinc-300">属性</span>
+                  {domain.attributes.map((attr, i) => (
+                    <div key={i} className="flex gap-3">
+                      <input
+                        placeholder="name"
+                        className="border border-zinc-700 bg-zinc-800 p-2 rounded w-1/2"
+                        value={attr.name}
+                        onChange={(e) => {
+                          const updated = [...domains];
+                          updated[domainIndex].attributes[i].name = e.target.value;
+                          setDomains(updated);
+                        }}
+                      />
+                      <input
+                        placeholder="type"
+                        className="border border-zinc-700 bg-zinc-800 p-2 rounded w-1/2"
+                        value={attr.type}
+                        onChange={(e) => {
+                          const updated = [...domains];
+                          updated[domainIndex].attributes[i].type = e.target.value;
+                          setDomains(updated);
+                        }}
+                      />
+                    </div>
+                  ))}
+                  <button
+                    className="text-xs text-blue-400 mt-1 hover:underline"
+                    onClick={() => {
+                      const updated = [...domains];
+                      updated[domainIndex].attributes.push({ name: "", type: "" });
+                      setDomains(updated);
+                    }}
+                  >
+                    + 属性を追加
+                  </button>
+                </div>
 
-          <div className="flex flex-col gap-2">
-            <span>属性</span>
-            {domain.attributes.map((attr, i) => (
-              <div key={i} className="flex gap-2">
-                <input
-                  placeholder="name"
-                  className="border p-1 rounded"
-                  value={attr.name}
-                  onChange={(e) => {
-                    const updated = [...domains];
-                    updated[domainIndex].attributes[i].name = e.target.value;
-                    setDomains(updated);
-                  }}
-                />
-                <input
-                  placeholder="type"
-                  className="border p-1 rounded"
-                  value={attr.type}
-                  onChange={(e) => {
-                    const updated = [...domains];
-                    updated[domainIndex].attributes[i].type = e.target.value;
-                    setDomains(updated);
-                  }}
-                />
+                <div className="flex flex-col gap-2">
+                  <span className="text-sm font-semibold text-zinc-300">メソッド</span>
+                  {domain.methods.map((m, i) => (
+                    <div key={i} className="flex gap-3">
+                      <input
+                        placeholder="name"
+                        className="border border-zinc-700 bg-zinc-800 p-2 rounded w-1/3"
+                        value={m.name}
+                        onChange={(e) => {
+                          const updated = [...domains];
+                          updated[domainIndex].methods[i].name = e.target.value;
+                          setDomains(updated);
+                        }}
+                      />
+                      <input
+                        placeholder="inputs"
+                        className="border border-zinc-700 bg-zinc-800 p-2 rounded w-1/3"
+                        value={m.inputs}
+                        onChange={(e) => {
+                          const updated = [...domains];
+                          updated[domainIndex].methods[i].inputs = e.target.value;
+                          setDomains(updated);
+                        }}
+                      />
+                      <input
+                        placeholder="output"
+                        className="border border-zinc-700 bg-zinc-800 p-2 rounded w-1/3"
+                        value={m.output}
+                        onChange={(e) => {
+                          const updated = [...domains];
+                          updated[domainIndex].methods[i].output = e.target.value;
+                          setDomains(updated);
+                        }}
+                      />
+                    </div>
+                  ))}
+                  <button
+                    className="text-xs text-blue-400 mt-1 hover:underline"
+                    onClick={() => {
+                      const updated = [...domains];
+                      updated[domainIndex].methods.push({ name: "", inputs: "", output: "" });
+                      setDomains(updated);
+                    }}
+                  >
+                    + メソッドを追加
+                  </button>
+                </div>
               </div>
             ))}
             <button
-              className="text-sm text-blue-600"
-              onClick={() => {
-                const updated = [...domains];
-                updated[domainIndex].attributes.push({ name: "", type: "" });
-                setDomains(updated);
-              }}
+              className="text-sm text-green-400 border border-green-600 py-2 px-4 rounded hover:bg-green-600/10 mt-2 w-fit"
+              onClick={addDomain}
             >
-              + 属性を追加
+              + ドメインを追加
             </button>
           </div>
+        </section>
 
-          <div className="flex flex-col gap-2">
-            <span>メソッド</span>
-            {domain.methods.map((m, i) => (
-              <div key={i} className="flex gap-2">
+        <section>
+          <h2 className="text-3xl font-semibold mb-4">ユースケース定義</h2>
+          <p className="text-sm text-zinc-400 mb-6">入力・出力として必要なドメインオブジェクトを選択してください。</p>
+
+          <div className="flex flex-col gap-6">
+            {usecases.map((u, i) => (
+              <div key={i} className="border border-zinc-700 bg-zinc-900 p-6 rounded-xl flex flex-col gap-4 shadow-md">
                 <input
-                  placeholder="name"
-                  className="border p-1 rounded"
-                  value={m.name}
-                  onChange={(e) => {
-                    const updated = [...domains];
-                    updated[domainIndex].methods[i].name = e.target.value;
-                    setDomains(updated);
-                  }}
-                />
-                <input
-                  placeholder="inputs"
-                  className="border p-1 rounded"
-                  value={m.inputs}
-                  onChange={(e) => {
-                    const updated = [...domains];
-                    updated[domainIndex].methods[i].inputs = e.target.value;
-                    setDomains(updated);
-                  }}
-                />
-                <input
-                  placeholder="output"
-                  className="border p-1 rounded"
-                  value={m.output}
-                  onChange={(e) => {
-                    const updated = [...domains];
-                    updated[domainIndex].methods[i].output = e.target.value;
-                    setDomains(updated);
-                  }}
-                />
-              </div>
-            ))}
-            <button
-              className="text-sm text-blue-600"
-              onClick={() => {
-                const updated = [...domains];
-                updated[domainIndex].methods.push({ name: "", inputs: "", output: "" });
-                setDomains(updated);
-              }}
-            >
-              + メソッドを追加
-            </button>
-          </div>
-        </div>
-      ))}
-
-      <button
-        className="text-sm text-green-500 border border-green-500 py-1 px-3 rounded w-fit"
-        onClick={addDomain}
-      >
-        + ドメインを追加
-      </button>
-
-      <h2 className="text-xl font-semibold mt-12">ユースケース定義</h2>
-
-      {usecases.map((u, i) => (
-        <div key={i} className="border p-4 rounded-md flex flex-col gap-4 bg-zinc-900">
-          <input
-            className="border p-2 rounded"
-            placeholder="ユースケース名"
-            value={u.name}
-            onChange={(e) => {
-              const updated = [...usecases];
-              updated[i].name = e.target.value;
-              setUsecases(updated);
-            }}
-          />
-
-          <div className="flex flex-col gap-2">
-            <span>入力</span>
-            {u.inputFields.map((f, fi) => (
-              <div key={fi} className="flex gap-2">
-                <select
-                  className="border p-1 rounded"
-                  value={f.name}
+                  className="border border-zinc-700 bg-zinc-800 p-2 rounded text-base"
+                  placeholder="ユースケース名（例: PlaceOrder）"
+                  value={u.name}
                   onChange={(e) => {
                     const updated = [...usecases];
-                    updated[i].inputFields[fi].name = e.target.value;
+                    updated[i].name = e.target.value;
                     setUsecases(updated);
                   }}
-                >
-                  <option value="">選択</option>
-                  {domainOptions.map((field, idx) => (
-                    <option key={idx} value={field}>{field}</option>
+                />
+                <div className="flex flex-col gap-2">
+                  <span className="text-sm font-medium">入力</span>
+                  {u.inputFields.map((f, fi) => (
+                    <select
+                      key={fi}
+                      className="border border-zinc-700 bg-zinc-800 p-2 rounded text-sm"
+                      value={f.name}
+                      onChange={(e) => {
+                        const updated = [...usecases];
+                        updated[i].inputFields[fi].name = e.target.value;
+                        setUsecases(updated);
+                      }}
+                    >
+                      <option value="">選択</option>
+                      {domainOptions.map((field, idx) => (
+                        <option key={idx} value={field}>{field}</option>
+                      ))}
+                    </select>
                   ))}
-                </select>
-              </div>
-            ))}
-            <button
-              className="text-sm text-blue-600"
-              onClick={() => {
-                const updated = [...usecases];
-                updated[i].inputFields.push({ name: "" });
-                setUsecases(updated);
-              }}
-            >
-              + 入力を追加
-            </button>
-          </div>
+                  <button
+                    className="text-xs text-blue-400 hover:underline"
+                    onClick={() => {
+                      const updated = [...usecases];
+                      updated[i].inputFields.push({ name: "" });
+                      setUsecases(updated);
+                    }}
+                  >
+                    + 入力を追加
+                  </button>
+                </div>
 
-          <div className="flex flex-col gap-2">
-            <span>出力</span>
-            {u.outputFields.map((f, fi) => (
-              <div key={fi} className="flex gap-2">
-                <select
-                  className="border p-1 rounded"
-                  value={f.name}
-                  onChange={(e) => {
-                    const updated = [...usecases];
-                    updated[i].outputFields[fi].name = e.target.value;
-                    setUsecases(updated);
-                  }}
-                >
-                  <option value="">選択</option>
-                  {domainOptions.map((field, idx) => (
-                    <option key={idx} value={field}>{field}</option>
+                <div className="flex flex-col gap-2">
+                  <span className="text-sm font-medium">出力</span>
+                  {u.outputFields.map((f, fi) => (
+                    <select
+                      key={fi}
+                      className="border border-zinc-700 bg-zinc-800 p-2 rounded text-sm"
+                      value={f.name}
+                      onChange={(e) => {
+                        const updated = [...usecases];
+                        updated[i].outputFields[fi].name = e.target.value;
+                        setUsecases(updated);
+                      }}
+                    >
+                      <option value="">選択</option>
+                      {domainOptions.map((field, idx) => (
+                        <option key={idx} value={field}>{field}</option>
+                      ))}
+                    </select>
                   ))}
-                </select>
+                  <button
+                    className="text-xs text-blue-400 hover:underline"
+                    onClick={() => {
+                      const updated = [...usecases];
+                      updated[i].outputFields.push({ name: "" });
+                      setUsecases(updated);
+                    }}
+                  >
+                    + 出力を追加
+                  </button>
+                </div>
               </div>
             ))}
             <button
-              className="text-sm text-blue-600"
-              onClick={() => {
-                const updated = [...usecases];
-                updated[i].outputFields.push({ name: "" });
-                setUsecases(updated);
-              }}
+              className="text-sm text-green-400 border border-green-600 py-2 px-4 rounded hover:bg-green-600/10 mt-2 w-fit"
+              onClick={addUsecase}
             >
-              + 出力を追加
+              + ユースケースを追加
             </button>
           </div>
+        </section>
+
+        <div className="text-center mt-12">
+          <button
+            className="bg-white text-black px-10 py-3 rounded-lg text-lg font-bold shadow-md hover:bg-zinc-100 transition"
+            onClick={handleSubmit}
+          >
+            プロジェクト生成
+          </button>
         </div>
-      ))}
+      </main>
 
-      <button
-        className="text-sm text-green-500 border border-green-500 py-1 px-3 rounded w-fit"
-        onClick={addUsecase}
-      >
-        + ユースケースを追加
-      </button>
-
-      <button
-        className="bg-black text-white px-4 py-2 rounded mt-4"
-        onClick={handleSubmit}
-      >
-        プロジェクト生成
-      </button>
+      <footer className="bg-zinc-900 text-zinc-500 text-center py-6 text-sm border-t border-zinc-700">
+        © 2025 ArchForge — Clean Architecture Generator
+      </footer>
     </div>
   );
 }
