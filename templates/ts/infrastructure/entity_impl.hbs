@@ -1,0 +1,18 @@
+{{#each imports}}import { {{name}} } from '{{from}}';
+{{/each}}
+
+export class {{name}} {
+  {{#each properties}}
+  {{name}}: {{type}};
+  {{/each}}
+
+  constructor({{#each properties}}{{name}}: {{type}}{{#unless @last}}, {{/unless}}{{/each}}) {
+    // 各実装をお願いします。
+  }
+
+  {{#each methods}}
+  {{#if (includes output "Promise")}}async{{else}}public{{/if}} {{name}}({{#each inputs}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}): {{output}} {
+    // 各実装をお願いします.
+  }
+  {{/each}}
+}

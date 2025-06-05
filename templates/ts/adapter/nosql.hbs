@@ -1,0 +1,17 @@
+export interface NoSQL {
+  Store<T>(ctx: unknown, collection: string, data: T): Promise<void>;
+  Update<T>(ctx: unknown, collection: string, filter: Partial<T>, update: Partial<T>): Promise<void>;
+  FindAll<T>(ctx: unknown, collection: string, filter: Partial<T>): Promise<T[]>;
+  FindOne<T>(
+    ctx: unknown,
+    collection: string,
+    filter: Partial<T>,
+    options?: Record<string, any>
+  ): Promise<T | null>;
+  StartSession(): Promise<NoSQLSession>;
+}
+
+export interface NoSQLSession {
+  WithTransaction(fn: (ctx: unknown) => Promise<void>): Promise<void>;
+  EndSession(ctx: unknown): void;
+}

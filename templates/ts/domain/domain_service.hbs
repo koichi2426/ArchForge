@@ -1,0 +1,8 @@
+{{#each imports}}import { {{name}} } from '{{from}}';
+{{/each}}
+
+export interface {{name}} {
+{{#each methods}}
+  {{name}}({{#each inputs}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}): {{output}};
+{{/each}}
+}

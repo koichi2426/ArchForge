@@ -1,0 +1,25 @@
+export interface SQL {
+  Execute(ctx: unknown, query: string, ...args: any[]): Promise<void>;
+  Query(ctx: unknown, query: string, ...args: any[]): Promise<Rows>;
+  QueryRow(ctx: unknown, query: string, ...args: any[]): Promise<Row>;
+  BeginTransaction(ctx: unknown): Promise<Tx>;
+}
+
+export interface Rows {
+  next(): boolean;
+  scan(...dest: any[]): void;
+  err(): Error | null;
+  close(): void;
+}
+
+export interface Row {
+  scan(...dest: any[]): void;
+}
+
+export interface Tx {
+  Execute(ctx: unknown, query: string, ...args: any[]): Promise<void>;
+  Query(ctx: unknown, query: string, ...args: any[]): Promise<Rows>;
+  QueryRow(ctx: unknown, query: string, ...args: any[]): Promise<Row>;
+  commit(): Promise<void>;
+  rollback(): Promise<void>;
+}

@@ -1,0 +1,8 @@
+{{#each imports}}import { {{name}}{{#if alias}} as {{alias}}{{/if}} } from '{{from}}';
+{{/each}}
+
+export class {{className}} implements {{interfaceName}} {
+  output({{methodArg}}: {{argType}}): {{returnType}} {
+    // 各実装をお願いします。
+  }
+}

@@ -1,0 +1,27 @@
+{{#each imports}}import {
+{{#each names}}  {{this}}{{#unless @last}},{{/unless}}
+{{/each}}
+} from '{{from}}';
+{{/each}}
+
+export class {{className}} {
+  constructor(private readonly uc: {{usecaseInterface}}) {}
+
+  async execute(input: {{inputType}}): Promise<{
+    status: number;
+    data: {{outputType}} | { error: string };
+  }> {
+    try {
+      const result = await this.uc.execute(input);
+      return {
+        status: 201,
+        data: result,
+      };
+    } catch (error) {
+      return {
+        status: 500,
+        data: { error: 'Failed to generate {{errorTarget}}' },
+      };
+    }
+  }
+}

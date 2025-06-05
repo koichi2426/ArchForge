@@ -1,0 +1,12 @@
+export class {{name}}SQL implements {{name}} {
+  constructor(
+    private readonly db: SQL,
+    private readonly tableName: string
+  ) {}
+
+  {{#each methods}}
+  async {{name}}({{#each inputs}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}): Promise<{{output}}> {
+    // 各実装をお願いします。
+  }
+  {{/each}}
+}
