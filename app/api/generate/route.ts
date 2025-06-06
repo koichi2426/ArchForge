@@ -21,6 +21,7 @@ const valueObjectTemplate = loadTemplate('ts/domain/valueObject.hbs');
 const domainServiceTemplate = loadTemplate('ts/domain/domain_service.hbs');
 const repositoryTemplate = loadTemplate('ts/domain/repository.hbs');
 const usecaseTemplate = loadTemplate('ts/usecase/usecase.hbs');
+const actionTemplate = loadTemplate('ts/adapter/action.hbs');
 
 const generateDomainFileContent = (domain: any, allDomains: any[], language: string): string => {
     const dependencies: string[] = [];
@@ -224,10 +225,36 @@ export async function POST(req: NextRequest) {
         });
     }
 
-    if (adapterFolder) {
-        const apiAdapterFolder = adapterFolder.folder('api');
-        if (apiAdapterFolder) apiAdapterFolder.file('README.md', '## API Adapters');
+    // Actionファイルを生成してadapter/apiフォルダに追加
+    const apiAdapterFolder = adapterFolder ? adapterFolder.folder('api') : null;
+    if (apiAdapterFolder) {
+        usecases.forEach((usecase: any) => {
+            const actionFileName = `${usecase.name}Action.ts`;
+            // Actionテンプレートに渡すデータを生成
+            const templateData = {
+                className: `${usecase.name}Action`,
+                usecaseInterface: `I${usecase.name}UseCase`,
+                inputType: `${usecase.name}Input`,
+                outputType: `${usecase.name}Output`,
+                errorTarget: usecase.name, // エラーメッセージに使用
+                // インポート情報の生成
+                imports: [
+                    {
+                        from: `../../usecase/${usecase.name}UseCase`,
+                        names: [
+                            `I${usecase.name}UseCase`,
+                            `${usecase.name}Input`,
+                            `${usecase.name}Output`,
+                        ],
+                    },
+                ],
+            };
+            apiAdapterFolder.file(actionFileName, actionTemplate(templateData));
+        });
+        apiAdapterFolder.file('README.md', '## API Adapters'); // 既存のREADMEを残すか必要に応じて調整
+    }
 
+    if (adapterFolder) {
         const presenterAdapterFolder = adapterFolder.folder('presenter');
         if (presenterAdapterFolder) presenterAdapterFolder.file('README.md', '## Presenter Adapters');
 
