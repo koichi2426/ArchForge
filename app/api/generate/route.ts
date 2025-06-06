@@ -403,7 +403,6 @@ export async function POST(req: NextRequest) {
         // domainフォルダの作成
         const domainFolder = infrastructureFolder.folder('domain');
         if (domainFolder) {
-            domainFolder.file('README.md', '## Domain Infrastructure');
             
             // ドメインオブジェクトの実装を生成
             domains.forEach((domain: any) => {
@@ -537,7 +536,6 @@ export async function POST(req: NextRequest) {
         // databaseフォルダの作成
         const databaseFolder = infrastructureFolder.folder('database');
         if (databaseFolder) {
-            databaseFolder.file('README.md', '## Database Infrastructure');
             // NoSQLとSQLのデータベース接続クラスを生成
             databaseFolder.file('NoSQL.ts', noSqlInfrastructureTemplate({}));
             databaseFolder.file('SQL.ts', sqlInfrastructureTemplate({}));
@@ -545,12 +543,8 @@ export async function POST(req: NextRequest) {
 
         // routerフォルダの作成
         const routerFolder = infrastructureFolder.folder('router');
-        if (routerFolder) {
-            routerFolder.file('README.md', '## Router Infrastructure');
-        }
     }
 
-    zip.file('README.md', `# ${projectName || 'My Clean Architecture Project'}\n\nThis is a project generated with a basic Clean Architecture structure in ${language}.`);
 
     const content = await zip.generateAsync({ type: 'uint8array' });
 
