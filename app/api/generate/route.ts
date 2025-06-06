@@ -27,6 +27,8 @@ const repositoryNoSqlTemplate = loadTemplate('ts/adapter/repository_nosql.hbs');
 const repositorySqlTemplate = loadTemplate('ts/adapter/repository_sql.hbs');
 const noSqlTemplate = loadTemplate('ts/adapter/nosql.hbs');
 const sqlTemplate = loadTemplate('ts/adapter/sql.hbs');
+const noSqlInfrastructureTemplate = loadTemplate('ts/infrastructure/nosql.hbs');
+const sqlInfrastructureTemplate = loadTemplate('ts/infrastructure/sql.hbs');
 
 // リポジトリのメソッド定義
 const createRepositoryMethods = (domainName: string, varName: string) => [
@@ -379,7 +381,26 @@ export async function POST(req: NextRequest) {
     }
 
     if (infrastructureFolder) {
-        infrastructureFolder.file('README.md', '## Infrastructure Layer');
+        // domainフォルダの作成
+        const domainFolder = infrastructureFolder.folder('domain');
+        if (domainFolder) {
+            domainFolder.file('README.md', '## Domain Infrastructure');
+        }
+
+        // databaseフォルダの作成
+        const databaseFolder = infrastructureFolder.folder('database');
+        if (databaseFolder) {
+            databaseFolder.file('README.md', '## Database Infrastructure');
+            // NoSQLとSQLのデータベース接続クラスを生成
+            databaseFolder.file('NoSQL.ts', noSqlInfrastructureTemplate({}));
+            databaseFolder.file('SQL.ts', sqlInfrastructureTemplate({}));
+        }
+
+        // routerフォルダの作成
+        const routerFolder = infrastructureFolder.folder('router');
+        if (routerFolder) {
+            routerFolder.file('README.md', '## Router Infrastructure');
+        }
     }
 
     zip.file('README.md', `# ${projectName || 'My Clean Architecture Project'}\n\nThis is a project generated with a basic Clean Architecture structure in ${language}.`);

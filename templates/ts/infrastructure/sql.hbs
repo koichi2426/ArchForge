@@ -1,0 +1,26 @@
+export class SQL {
+  constructor(
+    private readonly connectionString: string,
+    private readonly options?: any
+  ) {}
+
+  async connect(): Promise<void> {
+    // データベース接続の実装をお願いします。
+  }
+
+  async disconnect(): Promise<void> {
+    // データベース切断の実装をお願いします。
+  }
+
+  async query<T>(sql: string, params?: any[]): Promise<T[]> {
+    // クエリ実行の実装をお願いします。
+  }
+
+  async execute(sql: string, params?: any[]): Promise<void> {
+    // クエリ実行（結果不要）の実装をお願いします。
+  }
+
+  async transaction<T>(callback: (connection: SQL) => Promise<T>): Promise<T> {
+    // トランザクション実行の実装をお願いします。
+  }
+} 

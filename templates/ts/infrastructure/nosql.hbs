@@ -1,0 +1,34 @@
+export class NoSQL {
+  constructor(
+    private readonly connectionString: string,
+    private readonly options?: any
+  ) {}
+
+  async connect(): Promise<void> {
+    // データベース接続の実装をお願いします。
+  }
+
+  async disconnect(): Promise<void> {
+    // データベース切断の実装をお願いします。
+  }
+
+  async findOne(collection: string, query: any): Promise<any> {
+    // 1件取得の実装をお願いします。
+  }
+
+  async find(collection: string, query: any): Promise<any[]> {
+    // 複数件取得の実装をお願いします。
+  }
+
+  async insertOne(collection: string, document: any): Promise<void> {
+    // 1件挿入の実装をお願いします。
+  }
+
+  async updateOne(collection: string, query: any, update: any): Promise<void> {
+    // 1件更新の実装をお願いします。
+  }
+
+  async deleteOne(collection: string, query: any): Promise<void> {
+    // 1件削除の実装をお願いします。
+  }
+} 
