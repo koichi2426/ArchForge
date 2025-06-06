@@ -1,4 +1,8 @@
-export class {{name}}NoSQL implements {{name}} {
+import { {{name}} } from '../../domain/{{name}}';
+import { {{name}}Repository } from '../../domain/{{name}}Repository';
+import { NoSQL } from './NoSQL';
+
+export class {{name}}NoSQL implements {{name}}Repository {
   constructor(
     private readonly db: NoSQL,
     private readonly collectionName: string

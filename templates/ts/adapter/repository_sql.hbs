@@ -1,4 +1,8 @@
-export class {{name}}SQL implements {{name}} {
+import { {{name}} } from '../../domain/{{name}}';
+import { {{name}}Repository } from '../../domain/{{name}}Repository';
+import { SQL } from './SQL';
+
+export class {{name}}SQL implements {{name}}Repository {
   constructor(
     private readonly db: SQL,
     private readonly tableName: string

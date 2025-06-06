@@ -23,6 +23,34 @@ const repositoryTemplate = loadTemplate('ts/domain/repository.hbs');
 const usecaseTemplate = loadTemplate('ts/usecase/usecase.hbs');
 const actionTemplate = loadTemplate('ts/adapter/action.hbs');
 const presenterTemplate = loadTemplate('ts/adapter/presenter.hbs');
+const repositoryNoSqlTemplate = loadTemplate('ts/adapter/repository_nosql.hbs');
+const repositorySqlTemplate = loadTemplate('ts/adapter/repository_sql.hbs');
+const noSqlTemplate = loadTemplate('ts/adapter/nosql.hbs');
+const sqlTemplate = loadTemplate('ts/adapter/sql.hbs');
+
+// リポジトリのメソッド定義
+const createRepositoryMethods = (domainName: string, varName: string) => [
+    {
+        name: 'findById',
+        inputs: ['id: string'],
+        output: `${domainName} | null`
+    },
+    {
+        name: 'save',
+        inputs: [`${varName}: ${domainName}`],
+        output: 'void'
+    },
+    {
+        name: 'delete',
+        inputs: ['id: string'],
+        output: 'void'
+    },
+    {
+        name: 'exists',
+        inputs: ['id: string'],
+        output: 'boolean'
+    }
+];
 
 const generateDomainFileContent = (domain: any, allDomains: any[], language: string): string => {
     const dependencies: string[] = [];
@@ -92,13 +120,8 @@ const generateRepositoryContent = (domain: any, language: string): string => {
 
     const templateData = {
         name: `${domainName}Repository`,
-        imports: imports, // インポート情報を追加
-        methods: [
-            { name: 'findById', inputs: ['id: string'], output: `${domainName} | null` },
-            { name: 'save', inputs: [`${varName}: ${domainName}`], output: 'void' },
-            { name: 'delete', inputs: ['id: string'], output: 'void' },
-            { name: 'exists', inputs: ['id: string'], output: 'boolean' },
-        ],
+        imports: imports,
+        methods: createRepositoryMethods(domainName, varName)
     };
 
     return repositoryTemplate(templateData);
@@ -298,11 +321,61 @@ export async function POST(req: NextRequest) {
     }
 
     if (adapterFolder) {
-        const presenterAdapterFolder = adapterFolder.folder('presenter');
-        if (presenterAdapterFolder) presenterAdapterFolder.file('README.md', '## Presenter Adapters');
-
         const repositoryAdapterFolder = adapterFolder.folder('repository');
-        if (repositoryAdapterFolder) repositoryAdapterFolder.file('README.md', '## Repository Implementations');
+        if (repositoryAdapterFolder) {
+            // NoSQLとSQLのデータベース接続クラスを生成
+            repositoryAdapterFolder.file('NoSQL.ts', noSqlTemplate({}));
+            repositoryAdapterFolder.file('SQL.ts', sqlTemplate({}));
+
+            domains.forEach((domain: any) => {
+                if (domain.domainType === 'entity') {
+                    const domainName = domain.name;
+                    const varName = domainName.charAt(0).toLowerCase() + domainName.slice(1);
+                    
+                    // NoSQLリポジトリの実装
+                    const noSqlTemplateData = {
+                        name: domainName,
+                        methods: createRepositoryMethods(domainName, varName),
+                        imports: [
+                            {
+                                name: domainName,
+                                from: `../../domain/${varName}`
+                            },
+                            {
+                                name: `${domainName}Repository`,
+                                from: `../../domain/${varName}Repository`
+                            },
+                            {
+                                name: 'NoSQL',
+                                from: './NoSQL'
+                            }
+                        ]
+                    };
+                    repositoryAdapterFolder.file(`${domainName}NoSqlRepository.ts`, repositoryNoSqlTemplate(noSqlTemplateData));
+
+                    // SQLリポジトリの実装
+                    const sqlTemplateData = {
+                        name: domainName,
+                        methods: createRepositoryMethods(domainName, varName),
+                        imports: [
+                            {
+                                name: domainName,
+                                from: `../../domain/${varName}`
+                            },
+                            {
+                                name: `${domainName}Repository`,
+                                from: `../../domain/${varName}Repository`
+                            },
+                            {
+                                name: 'SQL',
+                                from: './SQL'
+                            }
+                        ]
+                    };
+                    repositoryAdapterFolder.file(`${domainName}SqlRepository.ts`, repositorySqlTemplate(sqlTemplateData));
+                }
+            });
+        }
     }
 
     if (infrastructureFolder) {
