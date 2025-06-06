@@ -22,6 +22,7 @@ const domainServiceTemplate = loadTemplate('ts/domain/domain_service.hbs');
 const repositoryTemplate = loadTemplate('ts/domain/repository.hbs');
 const usecaseTemplate = loadTemplate('ts/usecase/usecase.hbs');
 const actionTemplate = loadTemplate('ts/adapter/action.hbs');
+const presenterTemplate = loadTemplate('ts/adapter/presenter.hbs');
 
 const generateDomainFileContent = (domain: any, allDomains: any[], language: string): string => {
     const dependencies: string[] = [];
@@ -251,7 +252,49 @@ export async function POST(req: NextRequest) {
             };
             apiAdapterFolder.file(actionFileName, actionTemplate(templateData));
         });
-        apiAdapterFolder.file('README.md', '## API Adapters'); // 既存のREADMEを残すか必要に応じて調整
+    }
+
+    // Presenterファイルを生成してadapter/presenterフォルダに追加
+    const presenterAdapterFolder = adapterFolder ? adapterFolder.folder('presenter') : null;
+    if (presenterAdapterFolder) {
+        usecases.forEach((usecase: any) => {
+            const presenterFileName = `${usecase.name}Presenter.ts`;
+            // Presenterテンプレートに渡すデータを生成
+            const outputFields = (usecase.outputFields || []).map((f: any) => f.name);
+            const presenterInputType = outputFields.length === 1 ? outputFields[0].charAt(0).toUpperCase() + outputFields[0].slice(1) : `${usecase.name}Output`;
+            const presenterInputArg = outputFields.length === 1 ? outputFields[0].charAt(0).toLowerCase() + outputFields[0].slice(1) : 'output';
+
+            // インポート情報の生成
+            const imports = [];
+            // ユースケースのOutput Interfaceをインポート
+            imports.push({
+                name: `${usecase.name}Output`,
+                from: `../../usecase/${usecase.name}UseCase`
+            });
+            imports.push({
+                name: `${usecase.name}Presenter`,
+                from: `../../usecase/${usecase.name}UseCase`
+            });
+            // Outputでドメインオブジェクトを使用している場合、それをインポート
+            if (outputFields.length === 1) {
+                 const domainTypeName = outputFields[0].charAt(0).toUpperCase() + outputFields[0].slice(1);
+                 const domainFileName = outputFields[0].charAt(0).toLowerCase() + outputFields[0].slice(1);
+                 imports.push({
+                     name: domainTypeName,
+                     from: `../../domain/${domainFileName}`
+                 });
+            }
+
+            const templateData = {
+                className: `${usecase.name}PresenterDefault`,
+                interfaceName: `${usecase.name}Presenter`,
+                methodArg: presenterInputArg,
+                argType: presenterInputType,
+                returnType: `${usecase.name}Output`,
+                imports: imports,
+            };
+            presenterAdapterFolder.file(presenterFileName, presenterTemplate(templateData));
+        });
     }
 
     if (adapterFolder) {
