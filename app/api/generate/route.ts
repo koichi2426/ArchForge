@@ -246,10 +246,11 @@ export async function POST(req: NextRequest) {
     }
 
     const zip = new JSZip();
-    const domainFolder = zip.folder('domain');
-    const usecaseFolder = zip.folder('usecase');
-    const adapterFolder = zip.folder('adapter');
-    const infrastructureFolder = zip.folder('infrastructure');
+    const projectFolder = zip.folder(projectName || 'project');
+    const domainFolder = projectFolder?.folder('domain');
+    const usecaseFolder = projectFolder?.folder('usecase');
+    const adapterFolder = projectFolder?.folder('adapter');
+    const infrastructureFolder = projectFolder?.folder('infrastructure');
 
     if (domainFolder) {
         domains.forEach((domain: any) => {
