@@ -32,7 +32,6 @@ const sqlInfrastructureTemplate = loadTemplate('ts/infrastructure/sql.hbs');
 const domainServiceImplTemplate = loadTemplate('ts/infrastructure/domain_service_impl.hbs');
 const entityImplTemplate = loadTemplate('ts/infrastructure/entity_impl.hbs');
 const valueObjectImplTemplate = loadTemplate('ts/infrastructure/valueObject.hbs');
-const databaseInterfaceTemplate = loadTemplate('ts/domain/database_interface.hbs');
 
 // リポジトリのメソッド定義
 const createRepositoryMethods = (domainName: string, varName: string) => [
@@ -90,7 +89,7 @@ const generateDomainFileContent = (domain: any, allDomains: any[], language: str
     }));
 
     const templateData = {
-        name: domain.name,
+        name: domain.name.charAt(0).toUpperCase() + domain.name.slice(1),
         imports: uniqueDependencies,
         properties: propertiesData,
         methods: methodsData,
@@ -109,7 +108,7 @@ const generateDomainFileContent = (domain: any, allDomains: any[], language: str
 };
 
 const generateRepositoryContent = (domain: any, language: string): string => {
-    const domainName = domain.name;
+    const domainName = domain.name.charAt(0).toUpperCase() + domain.name.slice(1);
     const varName = domainName.charAt(0).toLowerCase() + domainName.slice(1);
 
     // リポジトリで必要となるエンティティのインポート情報を生成
@@ -134,10 +133,11 @@ const generateRepositoryContent = (domain: any, language: string): string => {
 };
 
 const generateUsecaseContent = (usecase: any, allDomains: any[], language: string): string => {
-    const inputInterfaceName = `${usecase.name}Input`;
-    const outputInterfaceName = `${usecase.name}Output`;
-    const usecaseInterfaceName = `I${usecase.name}UseCase`;
-    const interactorName = `${usecase.name}Interactor`;
+    const usecaseName = usecase.name.charAt(0).toUpperCase() + usecase.name.slice(1);
+    const inputInterfaceName = `${usecaseName}Input`;
+    const outputInterfaceName = `${usecaseName}Output`;
+    const usecaseInterfaceName = `I${usecaseName}UseCase`;
+    const interactorName = `${usecaseName}Interactor`;
 
     // 名前の先頭を大文字にする関数
     const toTypeName = (name: string): string =>
@@ -180,7 +180,7 @@ const generateUsecaseContent = (usecase: any, allDomains: any[], language: strin
             fields: outputFields,
         },
         presenter: {
-            name: `${usecase.name}Presenter`,
+            name: `${usecaseName}Presenter`,
             inputArg: presenterInputArg,
             inputType: presenterInputType,
         },
@@ -191,7 +191,7 @@ const generateUsecaseContent = (usecase: any, allDomains: any[], language: strin
             type: `${outputFields[0].name}Repository`,
         },
         factoryFunction: {
-            name: `create${usecase.name}UseCase`,
+            name: `create${usecaseName}UseCase`,
         },
         interactor: {
             name: interactorName,
@@ -423,7 +423,7 @@ export async function POST(req: NextRequest) {
                                 from: `../../domain/${varName}`
                             },
                             ...Array.from(dependencies).map(dep => ({
-                                name: dep,
+                                name: dep.charAt(0).toUpperCase() + dep.slice(1),
                                 from: `../../domain/${dep.charAt(0).toLowerCase() + dep.slice(1)}`
                             }))
                         ],
@@ -455,7 +455,7 @@ export async function POST(req: NextRequest) {
                                 from: `../../domain/${varName}`
                             },
                             ...Array.from(dependencies).map(dep => ({
-                                name: dep,
+                                name: dep.charAt(0).toUpperCase() + dep.slice(1),
                                 from: `../../domain/${dep.charAt(0).toLowerCase() + dep.slice(1)}`
                             }))
                         ],
@@ -488,7 +488,7 @@ export async function POST(req: NextRequest) {
                                 from: `../../domain/${varName}`
                             },
                             ...Array.from(dependencies).map(dep => ({
-                                name: dep,
+                                name: dep.charAt(0).toUpperCase() + dep.slice(1),
                                 from: `../../domain/${dep.charAt(0).toLowerCase() + dep.slice(1)}`
                             }))
                         ],
