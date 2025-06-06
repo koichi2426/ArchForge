@@ -230,6 +230,16 @@ export default function Home() {
                           setDomains(updated);
                         }}
                       />
+                      <button
+                        className="bg-zinc-700 hover:bg-zinc-600 text-red-400 text-xs px-2 py-1 rounded flex-shrink-0"
+                        onClick={() => {
+                          const updated = [...domains];
+                          updated[domainIndex].attributes = updated[domainIndex].attributes.filter((_, attributeIndex) => attributeIndex !== i);
+                          setDomains(updated);
+                        }}
+                      >
+                        削除
+                      </button>
                     </div>
                   ))}
                   <button
@@ -295,6 +305,16 @@ export default function Home() {
                           <option key={idx} value={option}>{option}</option>
                         ))}
                       </select>
+                      <button
+                        className="bg-zinc-700 hover:bg-zinc-600 text-red-400 text-xs px-2 py-1 rounded flex-shrink-0"
+                        onClick={() => {
+                          const updated = [...domains];
+                          updated[domainIndex].methods = updated[domainIndex].methods?.filter((_, methodIndex) => methodIndex !== i) || [];
+                          setDomains(updated);
+                        }}
+                      >
+                        削除
+                      </button>
                     </div>
                   ))}
                   <button
@@ -342,21 +362,32 @@ export default function Home() {
                 <div className="flex flex-col gap-2">
                   <span className="text-sm font-medium">入力</span>
                   {u.inputFields.map((f, fi) => (
-                    <select
-                      key={fi}
-                      className="border border-zinc-700 bg-zinc-800 p-2 rounded text-sm"
-                      value={f.name}
-                      onChange={(e) => {
-                        const updated = [...usecases];
-                        updated[i].inputFields[fi].name = e.target.value;
-                        setUsecases(updated);
-                      }}
-                    >
-                      <option value="">選択</option>
-                      {selectionOptions.map((field, idx) => (
-                        <option key={idx} value={field}>{field}</option>
-                      ))}
-                    </select>
+                    <div key={fi} className="flex gap-3 items-center">
+                      <select
+                        className="border border-zinc-700 bg-zinc-800 p-2 rounded text-sm flex-grow"
+                        value={f.name}
+                        onChange={(e) => {
+                          const updated = [...usecases];
+                          updated[i].inputFields[fi].name = e.target.value;
+                          setUsecases(updated);
+                        }}
+                      >
+                        <option value="">選択</option>
+                        {selectionOptions.map((field, idx) => (
+                          <option key={idx} value={field}>{field}</option>
+                        ))}
+                      </select>
+                      <button
+                        className="bg-zinc-700 hover:bg-zinc-600 text-red-400 text-xs px-2 py-1 rounded flex-shrink-0"
+                        onClick={() => {
+                          const updated = [...usecases];
+                          updated[i].inputFields = updated[i].inputFields.filter((_, inputIndex) => inputIndex !== fi);
+                          setUsecases(updated);
+                        }}
+                      >
+                        削除
+                      </button>
+                    </div>
                   ))}
                   <button
                     className="text-xs text-blue-400 hover:underline"
@@ -373,21 +404,32 @@ export default function Home() {
                 <div className="flex flex-col gap-2">
                   <span className="text-sm font-medium">出力</span>
                   {u.outputFields.map((f, fi) => (
-                    <select
-                      key={fi}
-                      className="border border-zinc-700 bg-zinc-800 p-2 rounded text-sm"
-                      value={f.name}
-                      onChange={(e) => {
-                        const updated = [...usecases];
-                        updated[i].outputFields[fi].name = e.target.value;
-                        setUsecases(updated);
-                      }}
-                    >
-                      <option value="">選択</option>
-                      {selectionOptions.map((field, idx) => (
-                        <option key={idx} value={field}>{field}</option>
-                      ))}
-                    </select>
+                    <div key={fi} className="flex gap-3 items-center">
+                      <select
+                        className="border border-zinc-700 bg-zinc-800 p-2 rounded text-sm flex-grow"
+                        value={f.name}
+                        onChange={(e) => {
+                          const updated = [...usecases];
+                          updated[i].outputFields[fi].name = e.target.value;
+                          setUsecases(updated);
+                        }}
+                      >
+                        <option value="">選択</option>
+                        {selectionOptions.map((field, idx) => (
+                          <option key={idx} value={field}>{field}</option>
+                        ))}
+                      </select>
+                      <button
+                        className="bg-zinc-700 hover:bg-zinc-600 text-red-400 text-xs px-2 py-1 rounded flex-shrink-0"
+                        onClick={() => {
+                          const updated = [...usecases];
+                          updated[i].outputFields = updated[i].outputFields.filter((_, outputIndex) => outputIndex !== fi);
+                          setUsecases(updated);
+                        }}
+                      >
+                        削除
+                      </button>
+                    </div>
                   ))}
                   <button
                     className="text-xs text-blue-400 hover:underline"
