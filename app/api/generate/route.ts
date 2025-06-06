@@ -4,7 +4,7 @@ import Handlebars from 'handlebars';
 import fs from 'fs';
 import path from 'path';
 
-// テンプレートファイルを読み込み、コンパイルする関数
+// Load and compile Handlebars template
 const loadTemplate = (templatePath: string): HandlebarsTemplateDelegate => {
     const fullPath = path.join(process.cwd(), 'templates', templatePath);
     try {
@@ -75,32 +75,15 @@ const generateRepositoryContent = (domainName: string, language: string): string
     const templateData = {
         name: `${domainName}Repository`,
         methods: [
-            {
-                name: 'findById',
-                inputs: ['id: string'],
-                output: `${domainName} | null`,
-            },
-            {
-                name: 'save',
-                inputs: [`${varName}: ${domainName}`],
-                output: 'void',
-            },
-            {
-                name: 'delete',
-                inputs: ['id: string'],
-                output: 'void',
-            },
-            {
-                name: 'exists',
-                inputs: ['id: string'],
-                output: 'boolean',
-            }
-        ]
+            { name: 'findById', inputs: ['id: string'], output: `${domainName} | null` },
+            { name: 'save', inputs: [`${varName}: ${domainName}`], output: 'void' },
+            { name: 'delete', inputs: ['id: string'], output: 'void' },
+            { name: 'exists', inputs: ['id: string'], output: 'boolean' },
+        ],
     };
 
     return repositoryTemplate(templateData);
 };
-
 
 const generateUsecaseContent = (usecase: any, allDomains: any[], language: string): string => {
     const inputInterfaceName = `${usecase.name}Input`;
@@ -108,35 +91,58 @@ const generateUsecaseContent = (usecase: any, allDomains: any[], language: strin
     const usecaseInterfaceName = `I${usecase.name}UseCase`;
     const interactorName = `${usecase.name}Interactor`;
 
-    const inputFields = usecase.inputFields.map((f: any) => ({ name: f.name, type: f.type }));
-    const outputFields = usecase.outputFields.map((f: any) => ({ name: f.name, type: f.type }));
+    // 名前の先頭を大文字にする関数
+    const toTypeName = (name: string): string =>
+        name ? name.charAt(0).toUpperCase() + name.slice(1) : 'Any';
 
-    const repositoryDependencies: { name: string, from: string }[] = [];
-    [...inputFields, ...outputFields].forEach(field => {
-        const domain = allDomains.find(d => d.name === field.type && d.domainType === 'entity');
-        if (domain) {
-            repositoryDependencies.push({
-                name: `${domain.name}Repository`,
-                from: `../domain/${domain.name.toLowerCase()}.repository`
-            });
-        }
-    });
+    const normalizeFields = (fields: any[]) =>
+        (fields || []).map(f => {
+            const type = toTypeName(f.name);
+            return { name: f.name, type };
+        });
 
-    const uniqueRepositoryDependencies = Array.from(new Set(repositoryDependencies.map(dep => JSON.stringify(dep)))).map(dep => JSON.parse(dep));
+    const inputFields = normalizeFields(usecase.inputFields);
+    const outputFields = normalizeFields(usecase.outputFields);
+
+    // import対象型を抽出（重複除去）
+    const typeNames = Array.from(new Set([
+        ...inputFields.map(f => f.type),
+        ...outputFields.map(f => f.type),
+    ]));
+
+    const imports = typeNames
+        .filter(type => !['string', 'number', 'boolean', 'any'].includes(type)) // primitive除外
+        .map(type => ({
+            name: type,
+            from: `../domain/${type.toLowerCase()}`,
+        }));
 
     const templateData = {
-        usecaseName: usecase.name,
-        inputInterfaceName,
-        outputInterfaceName,
-        usecaseInterfaceName,
-        interactorName,
-        inputFields,
-        outputFields,
-        repositoryImports: uniqueRepositoryDependencies,
-        repositoryDeps: uniqueRepositoryDependencies.map(dep => ({
-            paramName: dep.name.replace('Repository', 'Repo').toLowerCase(),
-            paramType: dep.name,
-        })),
+        imports,
+        inputInterface: {
+            name: inputInterfaceName,
+            fields: inputFields,
+        },
+        outputInterface: {
+            name: outputInterfaceName,
+            fields: outputFields,
+        },
+        presenter: {
+            name: `${usecase.name}Presenter`,
+            inputArg: 'output',
+            inputType: outputInterfaceName,
+        },
+        usecaseInterface: {
+            name: usecaseInterfaceName,
+        },
+        factoryFunction: {
+            name: `create${usecase.name}UseCase`,
+            deps: [], // 今回は依存なしに固定
+        },
+        interactor: {
+            name: interactorName,
+            deps: [],
+        },
     };
 
     return usecaseTemplate(templateData);
@@ -208,7 +214,7 @@ export async function POST(req: NextRequest) {
         status: 200,
         headers: {
             'Content-Type': 'application/zip',
-            'Content-Disposition': `attachment; filename="${(projectName && projectName.length > 0) ? projectName : 'project'}.zip"`,
+            'Content-Disposition': `attachment; filename="${projectName?.length ? projectName : 'project'}.zip"`,
         },
     });
 }

@@ -7,7 +7,7 @@ export default function Home() {
     name: string;
     domainType: string;
     attributes: { name: string; type: string }[];
-    methods: { name: string; inputs: string; output: string }[];
+    methods?: { name: string; inputs: string; output: string }[];
   };
   const [projectName, setProjectName] = useState("");
   const [language, setLanguage] = useState("typescript");
@@ -27,7 +27,7 @@ export default function Home() {
           name: "",
           domainType: "entity",
           attributes: [{ name: "", type: "" }],
-          methods: [{ name: "", inputs: "", output: "" }]
+          methods: []
         }
       ]);
     }
@@ -47,7 +47,7 @@ export default function Home() {
         name: "",
         domainType: "entity",
         attributes: [{ name: "", type: "" }],
-        methods: [{ name: "", inputs: "", output: "" }]
+        methods: []
       }
     ]);
   };
@@ -101,7 +101,7 @@ export default function Home() {
           return;
         }
       }
-      for (const method of domain.methods) {
+      for (const method of domain.methods || []) {
         if (!method.name.trim()) {
           alert('メソッド名を入力してください');
           return;
@@ -246,7 +246,7 @@ export default function Home() {
 
                 <div className="flex flex-col gap-2">
                   <span className="text-sm font-semibold text-zinc-300">メソッド</span>
-                  {domain.methods.map((m, i) => (
+                  {domain.methods?.map((m, i) => (
                     <div key={i} className="flex gap-3">
                       <input
                         placeholder="name"
@@ -254,6 +254,9 @@ export default function Home() {
                         value={m.name}
                         onChange={(e) => {
                           const updated = [...domains];
+                          if (!updated[domainIndex].methods) {
+                            updated[domainIndex].methods = [];
+                          }
                           updated[domainIndex].methods[i].name = e.target.value;
                           setDomains(updated);
                         }}
@@ -263,6 +266,9 @@ export default function Home() {
                         value={m.inputs}
                         onChange={(e) => {
                           const updated = [...domains];
+                          if (!updated[domainIndex].methods) {
+                            updated[domainIndex].methods = [];
+                          }
                           updated[domainIndex].methods[i].inputs = e.target.value;
                           setDomains(updated);
                         }}
@@ -277,6 +283,9 @@ export default function Home() {
                         value={m.output}
                         onChange={(e) => {
                           const updated = [...domains];
+                          if (!updated[domainIndex].methods) {
+                            updated[domainIndex].methods = [];
+                          }
                           updated[domainIndex].methods[i].output = e.target.value;
                           setDomains(updated);
                         }}
@@ -292,6 +301,9 @@ export default function Home() {
                     className="text-xs text-blue-400 mt-1 hover:underline"
                     onClick={() => {
                       const updated = [...domains];
+                      if (!updated[domainIndex].methods) {
+                        updated[domainIndex].methods = [];
+                      }
                       updated[domainIndex].methods.push({ name: "", inputs: "", output: "" });
                       setDomains(updated);
                     }}
