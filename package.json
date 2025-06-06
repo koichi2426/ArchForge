@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "handlebars": "^4.7.8",
     "jszip": "^3.10.1",
     "next": "15.3.3",
     "react": "^19.0.0",
