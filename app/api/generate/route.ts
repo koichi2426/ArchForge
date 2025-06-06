@@ -79,13 +79,28 @@ const generateDomainFileContent = (domain: any, allDomains: any[], language: str
 
     const propertiesData = domain.attributes.map((attr: any) => ({
         name: attr.name,
-        type: attr.type.charAt(0).toUpperCase() + attr.type.slice(1),
+        type: ['string', 'number', 'boolean', 'Date', 'Array', 'Map', 'Set', 'any'].includes(attr.type.toLowerCase()) 
+            ? attr.type.toLowerCase() 
+            : attr.type.charAt(0).toUpperCase() + attr.type.slice(1),
     }));
 
     const methodsData = domain.methods.map((method: any) => ({
         name: method.name,
-        inputs: method.inputs.split(',').map((s: string) => s.trim()).filter(Boolean).map((type: string) => type.charAt(0).toUpperCase() + type.slice(1)),
-        output: method.output.trim().charAt(0).toUpperCase() + method.output.trim().slice(1),
+        inputs: method.inputs.split(',').map((s: string) => s.trim()).filter(Boolean).map((type: string) => 
+            ['string', 'number', 'boolean', 'Date', 'Array', 'Map', 'Set', 'any'].includes(type.toLowerCase())
+                ? type.toLowerCase()
+                : type.charAt(0).toUpperCase() + type.slice(1)
+        ),
+        output: method.output.trim().toLowerCase() === 'string' || 
+                method.output.trim().toLowerCase() === 'number' || 
+                method.output.trim().toLowerCase() === 'boolean' || 
+                method.output.trim().toLowerCase() === 'date' || 
+                method.output.trim().toLowerCase() === 'array' || 
+                method.output.trim().toLowerCase() === 'map' || 
+                method.output.trim().toLowerCase() === 'set' || 
+                method.output.trim().toLowerCase() === 'any'
+            ? method.output.trim().toLowerCase()
+            : method.output.trim().charAt(0).toUpperCase() + method.output.trim().slice(1),
     }));
 
     const templateData = {
@@ -429,12 +444,20 @@ export async function POST(req: NextRequest) {
                         ],
                         properties: domain.attributes.map((attr: any) => ({
                             name: attr.name,
-                            type: attr.type.charAt(0).toUpperCase() + attr.type.slice(1)
+                            type: ['string', 'number', 'boolean', 'Date', 'Array', 'Map', 'Set', 'any'].includes(attr.type.toLowerCase()) 
+                                ? attr.type.toLowerCase() 
+                                : attr.type.charAt(0).toUpperCase() + attr.type.slice(1)
                         })),
                         methods: domain.methods.map((method: any) => ({
                             name: method.name,
-                            inputs: method.inputs.split(',').map((s: string) => s.trim()).filter(Boolean),
-                            output: method.output.trim()
+                            inputs: method.inputs.split(',').map((s: string) => s.trim()).filter(Boolean).map((type: string) => 
+                                ['string', 'number', 'boolean', 'Date', 'Array', 'Map', 'Set', 'any'].includes(type.toLowerCase())
+                                    ? type.toLowerCase()
+                                    : type.charAt(0).toUpperCase() + type.slice(1)
+                            ),
+                            output: ['string', 'number', 'boolean', 'Date', 'Array', 'Map', 'Set', 'any'].includes(method.output.trim().toLowerCase())
+                                ? method.output.trim().toLowerCase()
+                                : method.output.trim().charAt(0).toUpperCase() + method.output.trim().slice(1)
                         }))
                     };
                     domainFolder.file(`${domainName}.ts`, entityImplTemplate(entityImplData));
@@ -461,7 +484,9 @@ export async function POST(req: NextRequest) {
                         ],
                         properties: domain.attributes.map((attr: any) => ({
                             name: attr.name,
-                            type: attr.type.charAt(0).toUpperCase() + attr.type.slice(1)
+                            type: ['string', 'number', 'boolean', 'Date', 'Array', 'Map', 'Set', 'any'].includes(attr.type.toLowerCase()) 
+                                ? attr.type.toLowerCase() 
+                                : attr.type.charAt(0).toUpperCase() + attr.type.slice(1)
                         }))
                     };
                     domainFolder.file(`${domainName}.ts`, valueObjectImplTemplate(valueObjectImplData));
@@ -494,8 +519,14 @@ export async function POST(req: NextRequest) {
                         ],
                         methods: domain.methods.map((method: any) => ({
                             name: method.name,
-                            inputs: method.inputs.split(',').map((s: string) => s.trim()).filter(Boolean),
-                            output: method.output.trim()
+                            inputs: method.inputs.split(',').map((s: string) => s.trim()).filter(Boolean).map((type: string) => 
+                                ['string', 'number', 'boolean', 'Date', 'Array', 'Map', 'Set', 'any'].includes(type.toLowerCase())
+                                    ? type.toLowerCase()
+                                    : type.charAt(0).toUpperCase() + type.slice(1)
+                            ),
+                            output: ['string', 'number', 'boolean', 'Date', 'Array', 'Map', 'Set', 'any'].includes(method.output.trim().toLowerCase())
+                                ? method.output.trim().toLowerCase()
+                                : method.output.trim().charAt(0).toUpperCase() + method.output.trim().slice(1)
                         }))
                     };
                     domainFolder.file(`${domainName}.ts`, domainServiceImplTemplate(domainServiceImplData));
