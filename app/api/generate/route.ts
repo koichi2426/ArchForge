@@ -39,14 +39,16 @@ const loadTemplate = (templatePath: string): HandlebarsTemplateDelegate => {
     } catch (error) {
         console.error(`Error loading template ${templatePath}:`, error);
         // テンプレート読み込みエラーの場合は、エラーメッセージを返すテンプレートを返すなど、適切なエラーハンドリングを行う
-        return Handlebars.compile('// Error loading template');
+        return Handlebars.compile('// Error loading template\n');
     }
 };
 
 // Handlebarsテンプレートをロード (起動時に一度だけロードされることを想定)
 const entityTemplate = loadTemplate('ts/domain/entity.hbs');
-const repositoryTemplate = loadTemplate('ts/domain/repository.hbs'); // リポジトリ用のテンプレートも追加
-const usecaseTemplate = loadTemplate('ts/usecase/usecase.hbs'); // ユースケース用のテンプレートも追加
+const valueObjectTemplate = loadTemplate('ts/domain/valueObject.hbs'); // 値オブジェクト用テンプレートを追加
+const domainServiceTemplate = loadTemplate('ts/domain/domain_service.hbs'); // ドメインサービス用テンプレートを追加
+const repositoryTemplate = loadTemplate('ts/domain/repository.hbs'); // リポジトリ用のテンプレート
+const usecaseTemplate = loadTemplate('ts/usecase/usecase.hbs'); // ユースケース用のテンプレート
 // 必要に応じて他のテンプレートもここにロード
 
 const generateDomainFileContent = (domain: any, allDomains: any[], language: string): string => {
@@ -101,15 +103,12 @@ const generateDomainFileContent = (domain: any, allDomains: any[], language: str
     };
 
     // ドメインタイプに応じて適切なテンプレートをレンダリング
-    if (domain.domainType === 'entity' || domain.domainType === 'valueObject') {
-         // EntityとValue Objectは一旦同じテンプレートを使用
+    if (domain.domainType === 'entity') {
         return entityTemplate(templateData);
+    } else if (domain.domainType === 'valueObject') {
+        return valueObjectTemplate(templateData);
     } else if (domain.domainType === 'domainService') {
-        // Domain Service用のテンプレートが別途必要であれば作成し、ここで使用
-        // 今はないので、Entityテンプレートを使うか、簡易的に出力。ここではEntityテンプレートを使用する。
-         // DomainServiceテンプレートがある場合は以下のようにする:
-         // return domainServiceTemplate(templateData);
-         return entityTemplate(templateData); // 一旦Entityテンプレートで代用
+        return domainServiceTemplate(templateData);
     }
 
     return ''; // 未定義のドメインタイプ
