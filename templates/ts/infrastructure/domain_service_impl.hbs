@@ -1,7 +1,7 @@
 {{#each imports}}import { {{name}} } from '{{from}}';
 {{/each}}
 
-export class {{name}} implements {{name}} {
+export class {{name}}Impl implements {{name}} {
 {{#each methods}}
   {{name}}({{#each inputs}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}): {{output}} {
     // 各実装をお願いします。

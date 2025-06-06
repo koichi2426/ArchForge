@@ -1,7 +1,7 @@
 {{#each imports}}import { {{name}} } from '{{from}}';
 {{/each}}
 
-export class {{name}} implements {{name}} {
+export class {{name}}Impl implements {{name}} {
 {{#each properties}}  {{name}}: {{type}};
 {{/each}}
 }
