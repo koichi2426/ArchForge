@@ -117,6 +117,10 @@ const generateUsecaseContent = (usecase: any, allDomains: any[], language: strin
             from: `../domain/${type.toLowerCase()}`,
         }));
 
+    // ✅ outputFields が1つならその型を presenter.inputType に使う
+    const presenterInputType = outputFields.length === 1 ? outputFields[0].type : outputInterfaceName;
+    const presenterInputArg = outputFields.length === 1 ? outputFields[0].name : 'output';
+
     const templateData = {
         imports,
         inputInterface: {
@@ -129,24 +133,32 @@ const generateUsecaseContent = (usecase: any, allDomains: any[], language: strin
         },
         presenter: {
             name: `${usecase.name}Presenter`,
-            inputArg: 'output',
-            inputType: outputInterfaceName,
+            inputArg: presenterInputArg,
+            inputType: presenterInputType,
         },
         usecaseInterface: {
             name: usecaseInterfaceName,
         },
+        repository: {
+            type: `${outputFields[0].name}Repository`,
+        },
         factoryFunction: {
             name: `create${usecase.name}UseCase`,
-            deps: [], // 今回は依存なしに固定
         },
         interactor: {
             name: interactorName,
-            deps: [],
         },
     };
 
+    // リポジトリのインポートを追加
+    imports.push({
+        name: `${outputFields[0].name}Repository`,
+        from: `../domain/${outputFields[0].name.toLowerCase()}repository`,
+    });
+
     return usecaseTemplate(templateData);
 };
+
 
 const generateAdapterFile = (name: string, language: string): string => {
     return `export class ${name}Adapter {\n  constructor() {}\n}\n`;

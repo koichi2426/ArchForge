@@ -24,16 +24,17 @@ export interface {{usecaseInterface.name}} {
 }
 
 export function {{factoryFunction.name}}(
-  {{#each factoryFunction.deps}}{{name}}: {{type}}{{#unless @last}}, {{/unless}}{{/each}}
+  repo: {{repository.type}},
+  presenter: {{presenter.name}}
 ): {{usecaseInterface.name}} {
-  return new {{interactor.name}}(
-    {{#each factoryFunction.deps}}{{name}}{{#unless @last}}, {{/unless}}{{/each}}
-  );
+  return new {{interactor.name}}(repo, presenter);
 }
 
 // ユースケース本体
 export class {{interactor.name}} implements {{usecaseInterface.name}} {
   constructor(
+    private readonly repository: {{repository.type}},
+    private readonly presenter: {{presenter.name}}
   ) {
     // 各実装をお願いします。
   }
