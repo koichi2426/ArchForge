@@ -1,6 +1,6 @@
-import { INoSQL } from '../../adapter/repository/nosql';
+import { NoSQL, NoSQLSession } from '../../adapter/repository/nosql';
 
-export class NoSQL implements INoSQL {
+export class BaseNoSQL implements NoSQL {
   constructor(
     private readonly connectionString: string,
     private readonly options?: any
@@ -14,23 +14,38 @@ export class NoSQL implements INoSQL {
     // データベース切断の実装をお願いします。
   }
 
-  async findOne(collection: string, query: any): Promise<any> {
-    // 1件取得の実装をお願いします。
+  async Store<T>(ctx: unknown, collection: string, data: T): Promise<void> {
+    // データ保存の実装をお願いします。
   }
 
-  async find(collection: string, query: any): Promise<any[]> {
+  async Update<T>(ctx: unknown, collection: string, filter: Partial<T>, update: Partial<T>): Promise<void> {
+    // データ更新の実装をお願いします。
+  }
+
+  async FindAll<T>(ctx: unknown, collection: string, filter: Partial<T>): Promise<T[]> {
     // 複数件取得の実装をお願いします。
   }
 
-  async insertOne(collection: string, document: any): Promise<void> {
-    // 1件挿入の実装をお願いします。
+  async FindOne<T>(
+    ctx: unknown,
+    collection: string,
+    filter: Partial<T>,
+    options?: Record<string, any>
+  ): Promise<T | null> {
+    // 1件取得の実装をお願いします。
   }
 
-  async updateOne(collection: string, query: any, update: any): Promise<void> {
-    // 1件更新の実装をお願いします。
+  async StartSession(): Promise<NoSQLSession> {
+    // セッション開始の実装をお願いします。
+  }
+}
+
+export class BaseNoSQLSession implements NoSQLSession {
+  async WithTransaction(fn: (ctx: unknown) => Promise<void>): Promise<void> {
+    // トランザクション実行の実装をお願いします。
   }
 
-  async deleteOne(collection: string, query: any): Promise<void> {
-    // 1件削除の実装をお願いします。
+  EndSession(ctx: unknown): void {
+    // セッション終了の実装をお願いします。
   }
 } 

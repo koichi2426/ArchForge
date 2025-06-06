@@ -1,6 +1,6 @@
-import { ISQL } from '../../adapter/repository/sql';
+import { SQL, Rows, Row, Tx } from '../../adapter/repository/sql';
 
-export class SQL implements ISQL {
+export class BaseSQL implements SQL {
   constructor(
     private readonly connectionString: string,
     private readonly options?: any
@@ -14,15 +14,19 @@ export class SQL implements ISQL {
     // データベース切断の実装をお願いします。
   }
 
-  async query<T>(sql: string, params?: any[]): Promise<T[]> {
+  async Execute(ctx: unknown, query: string, ...args: any[]): Promise<void> {
     // クエリ実行の実装をお願いします。
   }
 
-  async execute(sql: string, params?: any[]): Promise<void> {
+  async Query(ctx: unknown, query: string, ...args: any[]): Promise<Rows> {
     // クエリ実行の実装をお願いします。
   }
 
-  async transaction<T>(callback: () => Promise<T>): Promise<T> {
-    // トランザクション実行の実装をお願いします。
+  async QueryRow(ctx: unknown, query: string, ...args: any[]): Promise<Row> {
+    // 単一行クエリ実行の実装をお願いします。
+  }
+
+  async BeginTransaction(ctx: unknown): Promise<Tx> {
+    // トランザクション開始の実装をお願いします。
   }
 } 
