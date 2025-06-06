@@ -37,17 +37,20 @@ const generateDomainFileContent = (domain: any, allDomains: any[], language: str
 
     const uniqueDependencies = Array.from(new Set(dependencies))
         .filter(dep => !['string', 'number', 'boolean', 'Date', 'Array', 'Map', 'Set', 'any', domain.name].includes(dep))
-        .map(dep => ({ name: dep, from: `./${dep.toLowerCase()}` }));
+        .map(dep => ({
+            name: dep.charAt(0).toUpperCase() + dep.slice(1),
+            from: `./${dep.charAt(0).toLowerCase() + dep.slice(1)}`
+        }));
 
     const propertiesData = domain.attributes.map((attr: any) => ({
         name: attr.name,
-        type: attr.type,
+        type: attr.type.charAt(0).toUpperCase() + attr.type.slice(1),
     }));
 
     const methodsData = domain.methods.map((method: any) => ({
         name: method.name,
-        inputs: method.inputs.split(',').map((s: string) => s.trim()).filter(Boolean),
-        output: method.output.trim(),
+        inputs: method.inputs.split(',').map((s: string) => s.trim()).filter(Boolean).map((type: string) => type.charAt(0).toUpperCase() + type.slice(1)),
+        output: method.output.trim().charAt(0).toUpperCase() + method.output.trim().slice(1),
     }));
 
     const templateData = {
@@ -69,11 +72,25 @@ const generateDomainFileContent = (domain: any, allDomains: any[], language: str
     return '';
 };
 
-const generateRepositoryContent = (domainName: string, language: string): string => {
+const generateRepositoryContent = (domain: any, language: string): string => {
+    const domainName = domain.name;
     const varName = domainName.charAt(0).toLowerCase() + domainName.slice(1);
+
+    // リポジトリで必要となるエンティティのインポート情報を生成
+    const imports = [];
+    // エンティティ名（先頭大文字）
+    const entityTypeName = domainName.charAt(0).toUpperCase() + domainName.slice(1);
+    // インポート元のファイルパス（先頭小文字）
+    const entityFileName = domainName.charAt(0).toLowerCase() + domainName.slice(1);
+
+    imports.push({
+        name: entityTypeName,
+        from: `./${entityFileName}`,
+    });
 
     const templateData = {
         name: `${domainName}Repository`,
+        imports: imports, // インポート情報を追加
         methods: [
             { name: 'findById', inputs: ['id: string'], output: `${domainName} | null` },
             { name: 'save', inputs: [`${varName}: ${domainName}`], output: 'void' },
@@ -150,11 +167,15 @@ const generateUsecaseContent = (usecase: any, allDomains: any[], language: strin
         },
     };
 
-    // リポジトリのインポートを追加
-    imports.push({
-        name: `${outputFields[0].name}Repository`,
-        from: `../domain/${outputFields[0].name.toLowerCase()}repository`,
-    });
+    // リポジトリのインポートを追加 (型名を大文字化して使用)
+    if (outputFields.length > 0) {
+        const repoTypeName = `${outputFields[0].type}Repository`;
+        const repoFileName = `${outputFields[0].type.charAt(0).toLowerCase() + outputFields[0].type.slice(1)}repository`;
+        imports.push({
+            name: repoTypeName,
+            from: `../domain/${repoFileName}`,
+        });
+    }
 
     return usecaseTemplate(templateData);
 };
@@ -191,7 +212,7 @@ export async function POST(req: NextRequest) {
 
             if (domain.domainType === 'entity') {
                 const repoFileName = `${domain.name}Repository.ts`;
-                domainFolder.file(repoFileName, generateRepositoryContent(domain.name, language));
+                domainFolder.file(repoFileName, generateRepositoryContent(domain, language));
             }
         });
     }

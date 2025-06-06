@@ -180,30 +180,41 @@ export default function Home() {
           <div className="flex flex-col gap-6">
             {domains.map((domain, domainIndex) => (
               <div key={domainIndex} className="border border-zinc-700 bg-zinc-900 p-6 rounded-xl flex flex-col gap-5 shadow-md">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <input
-                    className="border border-zinc-700 bg-zinc-800 p-2 rounded text-base"
-                    placeholder="ドメイン名（例: Order）"
-                    value={domain.name}
-                    onChange={(e) => {
-                      const updated = [...domains];
-                      updated[domainIndex].name = e.target.value;
-                      setDomains(updated);
-                    }}
-                  />
-                  <select
-                    className="border border-zinc-700 bg-zinc-800 p-2 rounded text-base"
-                    value={domain.domainType}
-                    onChange={(e) => {
-                      const updated = [...domains];
-                      updated[domainIndex].domainType = e.target.value;
+                <div className="flex justify-between items-center">
+                  <div className="grid md:grid-cols-2 gap-4 flex-grow">
+                    <input
+                      className="border border-zinc-700 bg-zinc-800 p-2 rounded text-base"
+                      placeholder="ドメイン名（例: Order）"
+                      value={domain.name}
+                      onChange={(e) => {
+                        const updated = [...domains];
+                        updated[domainIndex].name = e.target.value;
+                        setDomains(updated);
+                      }}
+                    />
+                    <select
+                      className="border border-zinc-700 bg-zinc-800 p-2 rounded text-base"
+                      value={domain.domainType}
+                      onChange={(e) => {
+                        const updated = [...domains];
+                        updated[domainIndex].domainType = e.target.value;
+                        setDomains(updated);
+                      }}
+                    >
+                      <option value="entity">エンティティ</option>
+                      <option value="valueObject">値オブジェクト</option>
+                      <option value="domainService">ドメインサービス</option>
+                    </select>
+                  </div>
+                  <button
+                    className="bg-zinc-700 hover:bg-zinc-600 text-red-400 text-xs px-3 py-2 rounded ml-4 flex-shrink-0"
+                    onClick={() => {
+                      const updated = domains.filter((_, index) => index !== domainIndex);
                       setDomains(updated);
                     }}
                   >
-                    <option value="entity">エンティティ</option>
-                    <option value="valueObject">値オブジェクト</option>
-                    <option value="domainService">ドメインサービス</option>
-                  </select>
+                    ドメイン削除
+                  </button>
                 </div>
 
                 <div className="flex flex-col gap-2">
@@ -349,16 +360,27 @@ export default function Home() {
           <div className="flex flex-col gap-6">
             {usecases.map((u, i) => (
               <div key={i} className="border border-zinc-700 bg-zinc-900 p-6 rounded-xl flex flex-col gap-4 shadow-md">
-                <input
-                  className="border border-zinc-700 bg-zinc-800 p-2 rounded text-base"
-                  placeholder="ユースケース名（例: PlaceOrder）"
-                  value={u.name}
-                  onChange={(e) => {
-                    const updated = [...usecases];
-                    updated[i].name = e.target.value;
-                    setUsecases(updated);
-                  }}
-                />
+                <div className="flex justify-between items-center">
+                  <input
+                    className="border border-zinc-700 bg-zinc-800 p-2 rounded text-base flex-grow"
+                    placeholder="ユースケース名（例: PlaceOrder）"
+                    value={u.name}
+                    onChange={(e) => {
+                      const updated = [...usecases];
+                      updated[i].name = e.target.value;
+                      setUsecases(updated);
+                    }}
+                  />
+                  <button
+                    className="bg-zinc-700 hover:bg-zinc-600 text-red-400 text-xs px-3 py-2 rounded ml-4 flex-shrink-0"
+                    onClick={() => {
+                      const updated = usecases.filter((_, index) => index !== i);
+                      setUsecases(updated);
+                    }}
+                  >
+                    ユースケース削除
+                  </button>
+                </div>
                 <div className="flex flex-col gap-2">
                   <span className="text-sm font-medium">入力</span>
                   {u.inputFields.map((f, fi) => (
