@@ -1,4 +1,6 @@
-export class SQL {
+import { ISQL } from '../../adapter/repository/sql';
+
+export class SQL implements ISQL {
   constructor(
     private readonly connectionString: string,
     private readonly options?: any
@@ -17,10 +19,10 @@ export class SQL {
   }
 
   async execute(sql: string, params?: any[]): Promise<void> {
-    // クエリ実行（結果不要）の実装をお願いします。
+    // クエリ実行の実装をお願いします。
   }
 
-  async transaction<T>(callback: (connection: SQL) => Promise<T>): Promise<T> {
+  async transaction<T>(callback: () => Promise<T>): Promise<T> {
     // トランザクション実行の実装をお願いします。
   }
 } 

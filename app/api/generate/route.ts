@@ -29,6 +29,10 @@ const noSqlTemplate = loadTemplate('ts/adapter/nosql.hbs');
 const sqlTemplate = loadTemplate('ts/adapter/sql.hbs');
 const noSqlInfrastructureTemplate = loadTemplate('ts/infrastructure/nosql.hbs');
 const sqlInfrastructureTemplate = loadTemplate('ts/infrastructure/sql.hbs');
+const domainServiceImplTemplate = loadTemplate('ts/infrastructure/domain_service_impl.hbs');
+const entityImplTemplate = loadTemplate('ts/infrastructure/entity_impl.hbs');
+const valueObjectImplTemplate = loadTemplate('ts/infrastructure/valueObject.hbs');
+const databaseInterfaceTemplate = loadTemplate('ts/domain/database_interface.hbs');
 
 // リポジトリのメソッド定義
 const createRepositoryMethods = (domainName: string, varName: string) => [
@@ -385,6 +389,118 @@ export async function POST(req: NextRequest) {
         const domainFolder = infrastructureFolder.folder('domain');
         if (domainFolder) {
             domainFolder.file('README.md', '## Domain Infrastructure');
+            
+            // ドメインオブジェクトの実装を生成
+            domains.forEach((domain: any) => {
+                const domainName = domain.name;
+                const varName = domainName.charAt(0).toLowerCase() + domainName.slice(1);
+                
+                if (domain.domainType === 'entity') {
+                    // 依存関係の収集
+                    const dependencies = new Set<string>();
+                    domain.attributes.forEach((attr: any) => {
+                        if (!['string', 'number', 'boolean', 'Date', 'Array', 'Map', 'Set', 'any'].includes(attr.type)) {
+                            dependencies.add(attr.type);
+                        }
+                    });
+                    domain.methods.forEach((method: any) => {
+                        const inputTypes = method.inputs.split(',').map((s: string) => s.trim()).filter(Boolean);
+                        inputTypes.forEach((type: string) => {
+                            if (!['string', 'number', 'boolean', 'Date', 'Array', 'Map', 'Set', 'any'].includes(type)) {
+                                dependencies.add(type);
+                            }
+                        });
+                        if (!['string', 'number', 'boolean', 'Date', 'Array', 'Map', 'Set', 'any'].includes(method.output.trim())) {
+                            dependencies.add(method.output.trim());
+                        }
+                    });
+
+                    const entityImplData = {
+                        name: domainName,
+                        imports: [
+                            {
+                                name: domainName,
+                                from: `../../domain/${varName}`
+                            },
+                            ...Array.from(dependencies).map(dep => ({
+                                name: dep,
+                                from: `../../domain/${dep.charAt(0).toLowerCase() + dep.slice(1)}`
+                            }))
+                        ],
+                        properties: domain.attributes.map((attr: any) => ({
+                            name: attr.name,
+                            type: attr.type.charAt(0).toUpperCase() + attr.type.slice(1)
+                        })),
+                        methods: domain.methods.map((method: any) => ({
+                            name: method.name,
+                            inputs: method.inputs.split(',').map((s: string) => s.trim()).filter(Boolean),
+                            output: method.output.trim()
+                        }))
+                    };
+                    domainFolder.file(`${domainName}.ts`, entityImplTemplate(entityImplData));
+                } else if (domain.domainType === 'valueObject') {
+                    // 依存関係の収集
+                    const dependencies = new Set<string>();
+                    domain.attributes.forEach((attr: any) => {
+                        if (!['string', 'number', 'boolean', 'Date', 'Array', 'Map', 'Set', 'any'].includes(attr.type)) {
+                            dependencies.add(attr.type);
+                        }
+                    });
+
+                    const valueObjectImplData = {
+                        name: domainName,
+                        imports: [
+                            {
+                                name: domainName,
+                                from: `../../domain/${varName}`
+                            },
+                            ...Array.from(dependencies).map(dep => ({
+                                name: dep,
+                                from: `../../domain/${dep.charAt(0).toLowerCase() + dep.slice(1)}`
+                            }))
+                        ],
+                        properties: domain.attributes.map((attr: any) => ({
+                            name: attr.name,
+                            type: attr.type.charAt(0).toUpperCase() + attr.type.slice(1)
+                        }))
+                    };
+                    domainFolder.file(`${domainName}.ts`, valueObjectImplTemplate(valueObjectImplData));
+                } else if (domain.domainType === 'domainService') {
+                    // 依存関係の収集
+                    const dependencies = new Set<string>();
+                    domain.methods.forEach((method: any) => {
+                        const inputTypes = method.inputs.split(',').map((s: string) => s.trim()).filter(Boolean);
+                        inputTypes.forEach((type: string) => {
+                            if (!['string', 'number', 'boolean', 'Date', 'Array', 'Map', 'Set', 'any'].includes(type)) {
+                                dependencies.add(type);
+                            }
+                        });
+                        if (!['string', 'number', 'boolean', 'Date', 'Array', 'Map', 'Set', 'any'].includes(method.output.trim())) {
+                            dependencies.add(method.output.trim());
+                        }
+                    });
+
+                    const domainServiceImplData = {
+                        name: domainName,
+                        imports: [
+                            {
+                                name: domainName,
+                                from: `../../domain/${varName}`
+                            },
+                            ...Array.from(dependencies).map(dep => ({
+                                name: dep,
+                                from: `../../domain/${dep.charAt(0).toLowerCase() + dep.slice(1)}`
+                            }))
+                        ],
+                        methods: domain.methods.map((method: any) => ({
+                            name: method.name,
+                            inputs: method.inputs.split(',').map((s: string) => s.trim()).filter(Boolean),
+                            output: method.output.trim()
+                        }))
+                    };
+                    domainFolder.file(`${domainName}.ts`, domainServiceImplTemplate(domainServiceImplData));
+                }
+            });
         }
 
         // databaseフォルダの作成

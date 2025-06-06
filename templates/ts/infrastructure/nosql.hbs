@@ -1,4 +1,6 @@
-export class NoSQL {
+import { INoSQL } from '../../adapter/repository/nosql';
+
+export class NoSQL implements INoSQL {
   constructor(
     private readonly connectionString: string,
     private readonly options?: any
