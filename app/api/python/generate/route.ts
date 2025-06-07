@@ -419,9 +419,11 @@ export async function POST(req: NextRequest) {
         zip.file(`${projectName}/domain/${domainFileName}`, domainContent);
 
         // リポジトリの生成
-        const repositoryContent = generateRepositoryContent(domain, language);
-        const repositoryFileName = `${domain.name.toLowerCase()}repository.py`;
-        zip.file(`${projectName}/domain/${repositoryFileName}`, repositoryContent);
+        if (domain.domainType !== 'valueObject') {
+            const repositoryContent = generateRepositoryContent(domain, language);
+            const repositoryFileName = `${domain.name.toLowerCase()}repository.py`;
+            zip.file(`${projectName}/domain/${repositoryFileName}`, repositoryContent);
+        }
 
         // エンティティ実装の生成
         if (domain.domainType === 'entity') {
