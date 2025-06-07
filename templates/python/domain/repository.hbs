@@ -1,0 +1,9 @@
+{{#each imports}}
+from {{from}} import {{name}}
+{{/each}}
+
+class {{name}}(Protocol):
+{{#each methods}}
+    def {{name}}(self, {{#each inputs}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}) -> {{output}}:
+        pass
+{{/each}}

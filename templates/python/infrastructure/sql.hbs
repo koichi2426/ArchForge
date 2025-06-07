@@ -1,0 +1,32 @@
+from typing import Any, Optional, Awaitable, List
+from .sql import SQL, Rows, Row, Tx
+
+
+class BaseSQL(SQL):
+    def __init__(self, connection_string: str, options: Optional[Any] = None):
+        self._connection_string = connection_string
+        self._options = options
+
+    async def connect(self) -> None:
+        # データベース接続の実装をお願いします。
+        pass
+
+    async def disconnect(self) -> None:
+        # データベース切断の実装をお願いします。
+        pass
+
+    async def execute(self, ctx: Any, query: str, *args: Any) -> None:
+        # クエリ実行の実装をお願いします。
+        pass
+
+    async def query(self, ctx: Any, query: str, *args: Any) -> Rows:
+        # クエリ実行の実装をお願いします。
+        pass
+
+    async def query_row(self, ctx: Any, query: str, *args: Any) -> Row:
+        # 単一行クエリ実行の実装をお願いします。
+        pass
+
+    async def begin_transaction(self, ctx: Any) -> Tx:
+        # トランザクション開始の実装をお願いします。
+        pass

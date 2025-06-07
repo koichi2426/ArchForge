@@ -1,0 +1,8 @@
+{{#each imports}}
+from {{from}} import {{name}}
+{{/each}}
+
+class {{name}}Impl({{name}}):
+{{#each properties}}
+    {{name}}: {{type}}
+{{/each}}

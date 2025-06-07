@@ -1,0 +1,16 @@
+from domain.{{name}} import {{name}}
+from domain.{{name}}Repository import {{name}}Repository
+from .SQL import SQL
+
+
+class {{name}}SQL({{name}}Repository):
+    def __init__(self, db: SQL, table_name: str):
+        self._db = db
+        self._table_name = table_name
+
+    {{#each methods}}
+    async def {{name}}(self, {{#each inputs}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}) -> {{output}}:
+        # 各実装をお願いします。
+        pass
+
+    {{/each}}

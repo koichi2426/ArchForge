@@ -4,6 +4,9 @@ import Handlebars from 'handlebars';
 import fs from 'fs';
 import path from 'path';
 
+// プリミティブ型の定義
+const PRIMITIVE_TYPES = ['string', 'number', 'boolean', 'Date', 'Array', 'Map', 'Set', 'any'];
+
 // Load and compile Handlebars template
 const loadTemplate = (templatePath: string): HandlebarsTemplateDelegate => {
     const fullPath = path.join(process.cwd(), 'templates', templatePath);
@@ -71,7 +74,7 @@ const generateDomainFileContent = (domain: any, allDomains: any[], language: str
     });
 
     const uniqueDependencies = Array.from(new Set(dependencies))
-        .filter(dep => !['string', 'number', 'boolean', 'Date', 'Array', 'Map', 'Set', 'any', domain.name].includes(dep))
+        .filter(dep => !PRIMITIVE_TYPES.includes(dep))
         .map(dep => ({
             name: dep.charAt(0).toUpperCase() + dep.slice(1),
             from: `./${dep.charAt(0).toLowerCase() + dep.slice(1)}`
@@ -79,7 +82,7 @@ const generateDomainFileContent = (domain: any, allDomains: any[], language: str
 
     const propertiesData = domain.attributes.map((attr: any) => ({
         name: attr.name,
-        type: ['string', 'number', 'boolean', 'Date', 'Array', 'Map', 'Set', 'any'].includes(attr.type.toLowerCase()) 
+        type: PRIMITIVE_TYPES.includes(attr.type.toLowerCase()) 
             ? attr.type.toLowerCase() 
             : attr.type.charAt(0).toUpperCase() + attr.type.slice(1),
     }));
@@ -87,7 +90,7 @@ const generateDomainFileContent = (domain: any, allDomains: any[], language: str
     const methodsData = domain.methods.map((method: any) => ({
         name: method.name,
         inputs: method.inputs.split(',').map((s: string) => s.trim()).filter(Boolean).map((type: string) => 
-            ['string', 'number', 'boolean', 'Date', 'Array', 'Map', 'Set', 'any'].includes(type.toLowerCase())
+            PRIMITIVE_TYPES.includes(type.toLowerCase())
                 ? type.toLowerCase()
                 : type.charAt(0).toUpperCase() + type.slice(1)
         ),
@@ -174,7 +177,7 @@ const generateUsecaseContent = (usecase: any, allDomains: any[], language: strin
     ]));
 
     const imports = typeNames
-        .filter(type => !['string', 'number', 'boolean', 'any'].includes(type)) // primitive除外
+        .filter(type => !PRIMITIVE_TYPES.includes(type)) // primitive除外
         .map(type => ({
             name: type,
             from: `../domain/${type.toLowerCase()}`,
@@ -414,18 +417,18 @@ export async function POST(req: NextRequest) {
                     // 依存関係の収集
                     const dependencies = new Set<string>();
                     domain.attributes.forEach((attr: any) => {
-                        if (!['string', 'number', 'boolean', 'Date', 'Array', 'Map', 'Set', 'any'].includes(attr.type)) {
+                        if (!PRIMITIVE_TYPES.includes(attr.type)) {
                             dependencies.add(attr.type);
                         }
                     });
                     domain.methods.forEach((method: any) => {
                         const inputTypes = method.inputs.split(',').map((s: string) => s.trim()).filter(Boolean);
                         inputTypes.forEach((type: string) => {
-                            if (!['string', 'number', 'boolean', 'Date', 'Array', 'Map', 'Set', 'any'].includes(type)) {
+                            if (!PRIMITIVE_TYPES.includes(type)) {
                                 dependencies.add(type);
                             }
                         });
-                        if (!['string', 'number', 'boolean', 'Date', 'Array', 'Map', 'Set', 'any'].includes(method.output.trim())) {
+                        if (!PRIMITIVE_TYPES.includes(method.output.trim())) {
                             dependencies.add(method.output.trim());
                         }
                     });
@@ -444,18 +447,18 @@ export async function POST(req: NextRequest) {
                         ],
                         properties: domain.attributes.map((attr: any) => ({
                             name: attr.name,
-                            type: ['string', 'number', 'boolean', 'Date', 'Array', 'Map', 'Set', 'any'].includes(attr.type.toLowerCase()) 
+                            type: PRIMITIVE_TYPES.includes(attr.type.toLowerCase()) 
                                 ? attr.type.toLowerCase() 
                                 : attr.type.charAt(0).toUpperCase() + attr.type.slice(1)
                         })),
                         methods: domain.methods.map((method: any) => ({
                             name: method.name,
                             inputs: method.inputs.split(',').map((s: string) => s.trim()).filter(Boolean).map((type: string) => 
-                                ['string', 'number', 'boolean', 'Date', 'Array', 'Map', 'Set', 'any'].includes(type.toLowerCase())
+                                PRIMITIVE_TYPES.includes(type.toLowerCase())
                                     ? type.toLowerCase()
                                     : type.charAt(0).toUpperCase() + type.slice(1)
                             ),
-                            output: ['string', 'number', 'boolean', 'Date', 'Array', 'Map', 'Set', 'any'].includes(method.output.trim().toLowerCase())
+                            output: PRIMITIVE_TYPES.includes(method.output.trim().toLowerCase())
                                 ? method.output.trim().toLowerCase()
                                 : method.output.trim().charAt(0).toUpperCase() + method.output.trim().slice(1)
                         }))
@@ -465,7 +468,7 @@ export async function POST(req: NextRequest) {
                     // 依存関係の収集
                     const dependencies = new Set<string>();
                     domain.attributes.forEach((attr: any) => {
-                        if (!['string', 'number', 'boolean', 'Date', 'Array', 'Map', 'Set', 'any'].includes(attr.type)) {
+                        if (!PRIMITIVE_TYPES.includes(attr.type)) {
                             dependencies.add(attr.type);
                         }
                     });
@@ -484,7 +487,7 @@ export async function POST(req: NextRequest) {
                         ],
                         properties: domain.attributes.map((attr: any) => ({
                             name: attr.name,
-                            type: ['string', 'number', 'boolean', 'Date', 'Array', 'Map', 'Set', 'any'].includes(attr.type.toLowerCase()) 
+                            type: PRIMITIVE_TYPES.includes(attr.type.toLowerCase()) 
                                 ? attr.type.toLowerCase() 
                                 : attr.type.charAt(0).toUpperCase() + attr.type.slice(1)
                         }))
@@ -496,11 +499,11 @@ export async function POST(req: NextRequest) {
                     domain.methods.forEach((method: any) => {
                         const inputTypes = method.inputs.split(',').map((s: string) => s.trim()).filter(Boolean);
                         inputTypes.forEach((type: string) => {
-                            if (!['string', 'number', 'boolean', 'Date', 'Array', 'Map', 'Set', 'any'].includes(type)) {
+                            if (!PRIMITIVE_TYPES.includes(type)) {
                                 dependencies.add(type);
                             }
                         });
-                        if (!['string', 'number', 'boolean', 'Date', 'Array', 'Map', 'Set', 'any'].includes(method.output.trim())) {
+                        if (!PRIMITIVE_TYPES.includes(method.output.trim())) {
                             dependencies.add(method.output.trim());
                         }
                     });
@@ -520,11 +523,11 @@ export async function POST(req: NextRequest) {
                         methods: domain.methods.map((method: any) => ({
                             name: method.name,
                             inputs: method.inputs.split(',').map((s: string) => s.trim()).filter(Boolean).map((type: string) => 
-                                ['string', 'number', 'boolean', 'Date', 'Array', 'Map', 'Set', 'any'].includes(type.toLowerCase())
+                                PRIMITIVE_TYPES.includes(type.toLowerCase())
                                     ? type.toLowerCase()
                                     : type.charAt(0).toUpperCase() + type.slice(1)
                             ),
-                            output: ['string', 'number', 'boolean', 'Date', 'Array', 'Map', 'Set', 'any'].includes(method.output.trim().toLowerCase())
+                            output: PRIMITIVE_TYPES.includes(method.output.trim().toLowerCase())
                                 ? method.output.trim().toLowerCase()
                                 : method.output.trim().charAt(0).toUpperCase() + method.output.trim().slice(1)
                         }))

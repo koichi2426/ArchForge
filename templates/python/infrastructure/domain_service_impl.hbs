@@ -1,0 +1,11 @@
+{{#each imports}}
+from {{from}} import {{name}}
+{{/each}}
+
+class {{name}}Impl({{name}}):
+{{#each methods}}
+    def {{name}}(self, {{#each inputs}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}) -> {{output}}:
+        # 各実装をお願いします。
+        pass
+
+{{/each}}

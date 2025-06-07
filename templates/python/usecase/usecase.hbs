@@ -1,0 +1,51 @@
+{{#each imports}}
+from {{from}} import {{name}}
+{{/each}}
+
+from typing import Protocol, Any, Awaitable
+
+
+# 入力ポート
+class {{inputInterface.name}}(TypedDict):
+{{#each inputInterface.fields}}
+    {{name}}: {{type}}
+{{/each}}
+
+
+# 出力ポート
+class {{outputInterface.name}}(TypedDict):
+{{#each outputInterface.fields}}
+    {{name}}: {{type}}
+{{/each}}
+
+
+# プレゼンター（出力ポート変換）
+class {{presenter.name}}(Protocol):
+    def output(self, {{presenter.inputArg}}: {{presenter.inputType}}) -> {{outputInterface.name}}:
+        pass
+
+
+# ユースケースインターフェース（入力ポート）
+class {{usecaseInterface.name}}(Protocol):
+    async def execute(self, input: {{inputInterface.name}}) -> {{outputInterface.name}}:
+        pass
+
+
+# ファクトリー関数
+def {{factoryFunction.name}}(
+    repo: {{repository.type}},
+    presenter: {{presenter.name}}
+) -> {{usecaseInterface.name}}:
+    return {{interactor.name}}(repo, presenter)
+
+
+# ユースケース本体
+class {{interactor.name}}({{usecaseInterface.name}}):
+    def __init__(self, repository: {{repository.type}}, presenter: {{presenter.name}}):
+        self._repository = repository
+        self._presenter = presenter
+        # 各実装をお願いします。
+
+    async def execute(self, input: {{inputInterface.name}}) -> {{outputInterface.name}}:
+        # 各実装をお願いします。
+        pass
