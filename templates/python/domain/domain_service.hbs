@@ -1,12 +1,9 @@
-from abc import ABC, abstractmethod
-from typing import List
+{% for imp in imports %}
+from {{ imp.from_ }} import {{ imp.name }}
+{% endfor %}
 
-from .entity import {{entityName}}
-
-class {{name}}Service(ABC):
-    @abstractmethod
-    def execute(self, entities: List[{{entityName}}]) -> None:
-        """
-        ドメインサービスで実行する処理を実装
-        """
-        pass 
+class {{ name }}:
+{% for method in methods %}
+    def {{ method.name }}(self{% for input in method.inputs %}, {{ input }}{% endfor %}) -> {{ method.output }}:
+        pass
+{% endfor %}

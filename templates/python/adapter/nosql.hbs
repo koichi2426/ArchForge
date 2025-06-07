@@ -1,30 +1,33 @@
-from typing import Optional
-from uuid import UUID
+from typing import TypeVar, Generic, List, Optional, Any, Callable, Dict, Protocol
 
-from pymongo import MongoClient
-from pymongo.database import Database
+T = TypeVar("T")
 
-from ..domain.entity import {{entityName}}
-from ..domain.repository import {{repositoryName}}Repository
-from ..infrastructure.nosql import {{nosqlImplName}}
+class NoSQL(Protocol):
+    async def store(self, ctx: Any, collection: str, data: T) -> None:
+        ...
 
-class {{name}}:
-    def __init__(self, connection_string: str, database_name: str):
-        self._client = MongoClient(connection_string)
-        self._database: Database = self._client[database_name]
-        self._repository: {{repositoryName}}Repository = {{nosqlImplName}}(self._database)
+    async def update(self, ctx: Any, collection: str, filter: Dict[str, Any], update: Dict[str, Any]) -> None:
+        ...
 
-    def save(self, entity: {{entityName}}) -> None:
-        self._repository.save(entity)
+    async def find_all(self, ctx: Any, collection: str, filter: Dict[str, Any]) -> List[T]:
+        ...
 
-    def find_by_id(self, id: UUID) -> Optional[{{entityName}}]:
-        return self._repository.find_by_id(id)
+    async def find_one(
+        self,
+        ctx: Any,
+        collection: str,
+        filter: Dict[str, Any],
+        options: Optional[Dict[str, Any]] = None
+    ) -> Optional[T]:
+        ...
 
-    def find_all(self) -> list[{{entityName}}]:
-        return self._repository.find_all()
+    async def start_session(self) -> "NoSQLSession":
+        ...
 
-    def delete(self, id: UUID) -> None:
-        self._repository.delete(id)
 
-    def __del__(self):
-        self._client.close() 
+class NoSQLSession(Protocol):
+    async def with_transaction(self, fn: Callable[[Any], Any]) -> None:
+        ...
+
+    def end_session(self, ctx: Any) -> None:
+        ...

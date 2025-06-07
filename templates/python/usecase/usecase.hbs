@@ -1,38 +1,43 @@
-from abc import ABC, abstractmethod
-from typing import List, Optional
-from uuid import UUID
+{% for imp in imports %}
+from {{ imp.from_ }} import {{ imp.name }}
+{% endfor %}
 
-from ..domain.entity import {{entityName}}
-from ..domain.repository import {{repositoryName}}Repository
-from ..domain.domain_service import {{domainServiceName}}Service
+# 入力ポート
+class {{ inputInterface.name }}:
+    def __init__(self{% for field in inputInterface.fields %}, {{ field.name }}: {{ field.type }}{% endfor %}):
+{% for field in inputInterface.fields %}
+        self.{{ field.name }} = {{ field.name }}
+{% endfor %}
 
-class {{name}}UseCase(ABC):
-    def __init__(
-        self,
-        repository: {{repositoryName}}Repository,
-        domain_service: {{domainServiceName}}Service
-    ):
-        self._repository = repository
-        self._domain_service = domain_service
+# 出力ポート
+class {{ outputInterface.name }}:
+    def __init__(self{% for field in outputInterface.fields %}, {{ field.name }}: {{ field.type }}{% endfor %}):
+{% for field in outputInterface.fields %}
+        self.{{ field.name }} = {{ field.name }}
+{% endfor %}
 
-    @abstractmethod
-    def execute(self, input_data: dict) -> dict:
-        """
-        ユースケースの実行ロジックを実装
-        """
-        pass
+# プレゼンター（出力ポート変換）
+class {{ presenter.name }}:
+    def output(self, {{ presenter.inputArg }}: {{ presenter.inputType }}) -> {{ outputInterface.name }}:
+        pass  # 実装を追加してください
 
-    def _find_entity(self, id: UUID) -> Optional[{{entityName}}]:
-        return self._repository.find_by_id(id)
+# ユースケースインターフェース（入力ポート）
+class {{ usecaseInterface.name }}(Protocol):
+    async def execute(self, input: {{ inputInterface.name }}) -> {{ outputInterface.name }}:
+        ...
+        
+# ファクトリ関数
+def {{ factoryFunction.name }}(
+    repo: {{ repository.type }},
+    presenter: {{ presenter.name }}
+) -> {{ usecaseInterface.name }}:
+    return {{ interactor.name }}(repo, presenter)
 
-    def _save_entity(self, entity: {{entityName}}) -> None:
-        self._repository.save(entity)
+# ユースケース本体
+class {{ interactor.name }}({{ usecaseInterface.name }}):
+    def __init__(self, repository: {{ repository.type }}, presenter: {{ presenter.name }}):
+        self.repository = repository
+        self.presenter = presenter
 
-    def _find_all_entities(self) -> List[{{entityName}}]:
-        return self._repository.find_all()
-
-    def _delete_entity(self, id: UUID) -> None:
-        self._repository.delete(id)
-
-    def _execute_domain_service(self, entities: List[{{entityName}}]) -> None:
-        self._domain_service.execute(entities) 
+    async def execute(self, input: {{ inputInterface.name }}) -> {{ outputInterface.name }}:
+        pass  # 実装を追加してください

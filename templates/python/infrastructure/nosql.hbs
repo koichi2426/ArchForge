@@ -1,56 +1,53 @@
-from typing import List, Optional
-from uuid import UUID
+from adapter.repository.nosql import NoSQL, NoSQLSession
+from typing import Any, Dict, Optional, TypeVar, List
 
-from pymongo.database import Database
-from pymongo.collection import Collection
+T = TypeVar("T")
 
-from ..domain.entity import {{entityName}}
-from ..domain.repository import {{repositoryName}}Repository
-from .entity_impl import {{entityImplName}}
+class BaseNoSQL(NoSQL):
+    def __init__(self, connection_string: str, options: Optional[Any] = None):
+        self._connection_string = connection_string
+        self._options = options
 
-class {{name}}Impl({{repositoryName}}Repository):
-    def __init__(self, database: Database):
-        self._collection: Collection = database.{{collectionName}}
+    async def connect(self) -> None:
+        # データベース接続の実装をお願いします。
+        pass
 
-    def save(self, entity: {{entityName}}) -> None:
-        # MongoDBを使用した永続化処理を実装
-        document = self._convert_to_document(entity)
-        self._collection.update_one(
-            {"_id": str(entity.id)},
-            {"$set": document},
-            upsert=True
-        )
+    async def disconnect(self) -> None:
+        # データベース切断の実装をお願いします。
+        pass
 
-    def find_by_id(self, id: UUID) -> Optional[{{entityName}}]:
-        # MongoDBを使用した検索処理を実装
-        document = self._collection.find_one({"_id": str(id)})
-        if document:
-            return self._convert_to_entity(document)
-        return None
+    async def store(self, ctx: Any, collection: str, data: T) -> None:
+        # データ保存の実装をお願いします。
+        pass
 
-    def find_all(self) -> List[{{entityName}}]:
-        # MongoDBを使用した全件取得処理を実装
-        documents = self._collection.find()
-        return [self._convert_to_entity(doc) for doc in documents]
+    async def update(self, ctx: Any, collection: str, filter: Dict[str, Any], update: Dict[str, Any]) -> None:
+        # データ更新の実装をお願いします。
+        pass
 
-    def delete(self, id: UUID) -> None:
-        # MongoDBを使用した削除処理を実装
-        self._collection.delete_one({"_id": str(id)})
+    async def find_all(self, ctx: Any, collection: str, filter: Dict[str, Any]) -> List[T]:
+        # 複数件取得の実装をお願いします。
+        pass
 
-    def _convert_to_document(self, entity: {{entityName}}) -> dict:
-        # エンティティをMongoDBドキュメントに変換
-        return {
-            "_id": str(entity.id),
-            {{#each properties}}
-            "{{name}}": entity.{{name}}{{#unless @last}},{{/unless}}
-            {{/each}}
-        }
+    async def find_one(
+        self,
+        ctx: Any,
+        collection: str,
+        filter: Dict[str, Any],
+        options: Optional[Dict[str, Any]] = None
+    ) -> Optional[T]:
+        # 1件取得の実装をお願いします。
+        pass
 
-    def _convert_to_entity(self, document: dict) -> {{entityName}}:
-        # MongoDBドキュメントをエンティティに変換
-        return {{entityImplName}}(
-            id=UUID(document["_id"]),
-            {{#each properties}}
-            {{name}}=document["{{name}}"]{{#unless @last}},{{/unless}}
-            {{/each}}
-        ) 
+    async def start_session(self) -> NoSQLSession:
+        # セッション開始の実装をお願いします。
+        pass
+
+
+class BaseNoSQLSession(NoSQLSession):
+    async def with_transaction(self, fn: Any) -> None:
+        # トランザクション実行の実装をお願いします。
+        pass
+
+    def end_session(self, ctx: Any) -> None:
+        # セッション終了の実装をお願いします。
+        pass

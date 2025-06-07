@@ -1,12 +1,8 @@
-from typing import Dict, Any
+{% for imp in imports %}
+from {{ imp.from_ }} import {{ imp.name }}{% if imp.alias %} as {{ imp.alias }}{% endif %}
+{% endfor %}
 
-class {{name}}:
-    def present(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        ユースケースの結果をAPIレスポンス形式に変換
-        """
-        return {
-            {{#each responseProperties}}
-            "{{name}}": data["{{name}}"]{{#unless @last}},{{/unless}}
-            {{/each}}
-        } 
+class {{ className }}({{ interfaceName }}):
+    def output(self, {{ methodArg }}: {{ argType }}) -> {{ returnType }}:
+        # 各実装をお願いします。
+        pass

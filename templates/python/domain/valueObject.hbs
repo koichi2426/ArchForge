@@ -1,7 +1,5 @@
-from dataclasses import dataclass
-
-@dataclass(frozen=True)
-class {{name}}:
-    {{#each properties}}
-    {{name}}: {{type}}
-    {{/each}} 
+class {{ name }}:
+    def __init__(self{% for prop in properties %}, {{ prop.name }}: {{ prop.type }}{% endfor %}):
+{% for prop in properties %}
+        self.{{ prop.name }} = {{ prop.name }}
+{% endfor %}

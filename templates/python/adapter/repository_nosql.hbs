@@ -1,24 +1,14 @@
-from typing import Optional
-from uuid import UUID
+from domain.{{ name }} import {{ name }}
+from domain.{{ name }}Repository import {{ name }}Repository
+from .NoSQL import NoSQL
 
-from pymongo.database import Database
+class {{ name }}NoSQL({{ name }}Repository):
+    def __init__(self, db: NoSQL, collection_name: str):
+        self._db = db
+        self._collection_name = collection_name
 
-from ..domain.entity import {{entityName}}
-from ..domain.repository import {{repositoryName}}Repository
-from ..infrastructure.nosql import {{nosqlImplName}}
-
-class {{name}}:
-    def __init__(self, database: Database):
-        self._repository: {{repositoryName}}Repository = {{nosqlImplName}}(database)
-
-    def save(self, entity: {{entityName}}) -> None:
-        self._repository.save(entity)
-
-    def find_by_id(self, id: UUID) -> Optional[{{entityName}}]:
-        return self._repository.find_by_id(id)
-
-    def find_all(self) -> list[{{entityName}}]:
-        return self._repository.find_all()
-
-    def delete(self, id: UUID) -> None:
-        self._repository.delete(id) 
+{% for method in methods %}
+    async def {{ method.name }}(self{% for input in method.inputs %}, {{ input }}{% endfor %}) -> {{ method.output }}:
+        # 各実装をお願いします。
+        pass
+{% endfor %}

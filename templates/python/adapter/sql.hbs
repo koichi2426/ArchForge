@@ -1,35 +1,50 @@
-from typing import Optional
-from uuid import UUID
+from typing import Any, List, Protocol, Optional
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
+class Rows(Protocol):
+    def next(self) -> bool:
+        ...
 
-from ..domain.entity import {{entityName}}
-from ..domain.repository import {{repositoryName}}Repository
-from ..infrastructure.sql import {{sqlImplName}}
+    def scan(self, *dest: Any) -> None:
+        ...
 
-class {{name}}:
-    def __init__(self, connection_string: str):
-        self._engine = create_engine(connection_string)
-        self._Session = sessionmaker(bind=self._engine)
-        self._repository: {{repositoryName}}Repository = {{sqlImplName}}(self._Session())
+    def err(self) -> Optional[Exception]:
+        ...
 
-    def save(self, entity: {{entityName}}) -> None:
-        with self._Session() as session:
-            self._repository = {{sqlImplName}}(session)
-            self._repository.save(entity)
+    def close(self) -> None:
+        ...
 
-    def find_by_id(self, id: UUID) -> Optional[{{entityName}}]:
-        with self._Session() as session:
-            self._repository = {{sqlImplName}}(session)
-            return self._repository.find_by_id(id)
 
-    def find_all(self) -> list[{{entityName}}]:
-        with self._Session() as session:
-            self._repository = {{sqlImplName}}(session)
-            return self._repository.find_all()
+class Row(Protocol):
+    def scan(self, *dest: Any) -> None:
+        ...
 
-    def delete(self, id: UUID) -> None:
-        with self._Session() as session:
-            self._repository = {{sqlImplName}}(session)
-            self._repository.delete(id) 
+
+class Tx(Protocol):
+    async def execute(self, ctx: Any, query: str, *args: Any) -> None:
+        ...
+
+    async def query(self, ctx: Any, query: str, *args: Any) -> Rows:
+        ...
+
+    async def query_row(self, ctx: Any, query: str, *args: Any) -> Row:
+        ...
+
+    async def commit(self) -> None:
+        ...
+
+    async def rollback(self) -> None:
+        ...
+
+
+class SQL(Protocol):
+    async def execute(self, ctx: Any, query: str, *args: Any) -> None:
+        ...
+
+    async def query(self, ctx: Any, query: str, *args: Any) -> Rows:
+        ...
+
+    async def query_row(self, ctx: Any, query: str, *args: Any) -> Row:
+        ...
+
+    async def begin_transaction(self, ctx: Any) -> Tx:
+        ...

@@ -1,23 +1,20 @@
-from typing import Optional
-from uuid import UUID
+{% for imp in imports %}
+from {{ imp.from_ }} import {{ imp.name }}
+{% endfor %}
 
-from ..domain.entity import {{entityName}}
+class {{ name }}Impl({{ name }}):
+    def __init__(self{% for prop in properties %}, {{ prop.name }}: {{ prop.type }}{% endfor %}):
+{% for prop in properties %}
+        self.{{ prop.name }} = {{ prop.name }}
+{% endfor %}
 
-class {{name}}Impl({{entityName}}):
-    def __init__(
-        self,
-        id: UUID,
-        {{#each properties}}
-        {{name}}: {{type}}{{#if optional}} = None{{/if}}{{#unless @last}},{{/unless}}
-        {{/each}}
-    ):
-        super().__init__(
-            id=id,
-            {{#each properties}}
-            {{name}}={{name}}{{#unless @last}},{{/unless}}
-            {{/each}}
-        )
+{% for method in methods %}
+    {% if "Promise" in method.output %}
+    async def {{ method.name }}(self{% for input in method.inputs %}, {{ input }}{% endfor %}) -> {{ method.output | replace("Promise<", "").replace(">", "") }}:
+    {% else %}
+    def {{ method.name }}(self{% for input in method.inputs %}, {{ input }}{% endfor %}) -> {{ method.output }}:
+    {% endif %}
+        # 各実装をお願いします。
+        pass
 
-    def __post_init__(self):
-        # インフラストラクチャ固有のバリデーションロジックをここに実装
-        super().__post_init__() 
+{% endfor %}

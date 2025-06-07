@@ -1,42 +1,20 @@
-from typing import Dict, Any
-from uuid import UUID
+{% for imp in imports %}
+from {{ imp.from_ }} import {% for name in imp.names %}{{ name }}{% if not loop.last %}, {% endif %}{% endfor %}
+{% endfor %}
 
-from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+class {{ className }}:
+    def __init__(self, uc: {{ usecaseInterface }}):
+        self._uc = uc
 
-from ..usecase.usecase import {{usecaseName}}UseCase
-from .presenter import {{presenterName}}
-
-router = APIRouter()
-
-class {{name}}Request(BaseModel):
-    {{#each requestProperties}}
-    {{name}}: {{type}}
-    {{/each}}
-
-class {{name}}Response(BaseModel):
-    {{#each responseProperties}}
-    {{name}}: {{type}}
-    {{/each}}
-
-@router.post("/{{endpoint}}", response_model={{name}}Response)
-async def {{name.lower}}(
-    request: {{name}}Request,
-    usecase: {{usecaseName}}UseCase = Depends(),
-    presenter: {{presenterName}} = Depends()
-) -> {{name}}Response:
-    try:
-        # リクエストをユースケースの入力形式に変換
-        input_data = {
-            {{#each requestProperties}}
-            "{{name}}": request.{{name}}{{#unless @last}},{{/unless}}
-            {{/each}}
-        }
-
-        # ユースケースを実行
-        result = usecase.execute(input_data)
-
-        # 結果をプレゼンターで変換
-        return presenter.present(result)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e)) 
+    async def execute(self, input: {{ inputType }}) -> dict:
+        try:
+            result: {{ outputType }} = await self._uc.execute(input)
+            return {
+                "status": 201,
+                "data": result
+            }
+        except Exception:
+            return {
+                "status": 500,
+                "data": { "error": "Failed to generate {{ errorTarget }}" }
+            }

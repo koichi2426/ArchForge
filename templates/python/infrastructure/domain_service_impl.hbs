@@ -1,9 +1,11 @@
-from typing import List
+{% for imp in imports %}
+from {{ imp.from_ }} import {{ imp.name }}
+{% endfor %}
 
-from ..domain.domain_service import {{domainServiceName}}Service
-from ..domain.entity import {{entityName}}
+class {{ name }}Impl({{ name }}):
+{% for method in methods %}
+    def {{ method.name }}(self{% for input in method.inputs %}, {{ input }}{% endfor %}) -> {{ method.output }}:
+        # 各実装をお願いします。
+        pass
 
-class {{name}}Impl({{domainServiceName}}Service):
-    def execute(self, entities: List[{{entityName}}]) -> None:
-        # ドメインサービスの具体的な実装をここに記述
-        pass 
+{% endfor %}
