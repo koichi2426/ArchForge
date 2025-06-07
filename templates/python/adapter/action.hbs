@@ -1,20 +1,8 @@
-{% for imp in imports %}
-from {{ imp.from_ }} import {% for name in imp.names %}{{ name }}{% if not loop.last %}, {% endif %}{% endfor %}
-{% endfor %}
+{{#each imports}}from {{from}} import {{name}}
+{{/each}}
 
-class {{ className }}:
-    def __init__(self, uc: {{ usecaseInterface }}):
-        self._uc = uc
-
-    async def execute(self, input: {{ inputType }}) -> dict:
-        try:
-            result: {{ outputType }} = await self._uc.execute(input)
-            return {
-                "status": 201,
-                "data": result
-            }
-        except Exception:
-            return {
-                "status": 500,
-                "data": { "error": "Failed to generate {{ errorTarget }}" }
-            }
+class {{name}}:
+{{#each methods}}
+    def {{name}}(self, {{#each inputs}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}) -> {{output}}:
+        pass
+{{/each}}

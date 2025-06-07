@@ -1,14 +1,12 @@
-{% for imp in imports %}
-from {{ imp.from_ }} import {{ imp.name }}
-{% endfor %}
+{{#each imports}}from {{from}} import {{name}}
+{{/each}}
 
-class {{ name }}:
-    def __init__(self{% for prop in properties %}, {{ prop.name }}: {{ prop.type }}{% endfor %}):
-{% for prop in properties %}
-        self.{{ prop.name }} = {{ prop.name }}
-{% endfor %}
+class {{name}}(Protocol):
+{{#each properties}}
+    {{name}}: {{type}}
+{{/each}}
 
-{% for method in methods %}
-    def {{ method.name }}(self{% for input in method.inputs %}, {{ input }}{% endfor %}) -> {{ method.output }}:
+{{#each methods}}
+    def {{name}}(self, {{#each inputs}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}) -> {{output}}:
         pass
-{% endfor %}
+{{/each}}

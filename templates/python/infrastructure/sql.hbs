@@ -1,5 +1,6 @@
-from adapter.repository.sql import SQL, Rows, Row, Tx
-from typing import Any, Optional
+from typing import Any, Optional, Awaitable, List
+from .sql import SQL, Rows, Row, Tx
+
 
 class BaseSQL(SQL):
     def __init__(self, connection_string: str, options: Optional[Any] = None):

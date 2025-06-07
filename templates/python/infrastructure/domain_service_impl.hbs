@@ -1,11 +1,11 @@
-{% for imp in imports %}
-from {{ imp.from_ }} import {{ imp.name }}
-{% endfor %}
+{{#each imports}}
+from {{from}} import {{name}}
+{{/each}}
 
-class {{ name }}Impl({{ name }}):
-{% for method in methods %}
-    def {{ method.name }}(self{% for input in method.inputs %}, {{ input }}{% endfor %}) -> {{ method.output }}:
+class {{name}}Impl({{name}}):
+{{#each methods}}
+    def {{name}}(self, {{#each inputs}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}) -> {{output}}:
         # 各実装をお願いします。
         pass
 
-{% endfor %}
+{{/each}}

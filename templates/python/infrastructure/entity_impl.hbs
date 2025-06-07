@@ -1,20 +1,20 @@
-{% for imp in imports %}
-from {{ imp.from_ }} import {{ imp.name }}
-{% endfor %}
+{{#each imports}}
+from {{from}} import {{name}}
+{{/each}}
 
-class {{ name }}Impl({{ name }}):
-    def __init__(self{% for prop in properties %}, {{ prop.name }}: {{ prop.type }}{% endfor %}):
-{% for prop in properties %}
-        self.{{ prop.name }} = {{ prop.name }}
-{% endfor %}
+class {{name}}Impl({{name}}):
+{{#each properties}}
+    {{name}}: {{type}}
+{{/each}}
 
-{% for method in methods %}
-    {% if "Promise" in method.output %}
-    async def {{ method.name }}(self{% for input in method.inputs %}, {{ input }}{% endfor %}) -> {{ method.output | replace("Promise<", "").replace(">", "") }}:
-    {% else %}
-    def {{ method.name }}(self{% for input in method.inputs %}, {{ input }}{% endfor %}) -> {{ method.output }}:
-    {% endif %}
+    def __init__(self, {{#each properties}}{{name}}: {{type}}{{#unless @last}}, {{/unless}}{{/each}}):
+{{#each properties}}
+        self.{{name}} = {{name}}
+{{/each}}
+
+{{#each methods}}
+    {{#if (includes output "Promise")}}async {{else}}def {{/if}}{{name}}(self, {{#each inputs}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}) -> {{output}}:
         # 各実装をお願いします。
         pass
 
-{% endfor %}
+{{/each}}

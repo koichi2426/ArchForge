@@ -1,8 +1,8 @@
-{% for imp in imports %}
-from {{ imp.from_ }} import {{ imp.name }}
-{% endfor %}
+{{#each imports}}
+from {{from}} import {{name}}
+{{/each}}
 
-class {{ name }}Impl({{ name }}):
-{% for prop in properties %}
-    {{ prop.name }}: {{ prop.type }}
-{% endfor %}
+class {{name}}Impl({{name}}):
+{{#each properties}}
+    {{name}}: {{type}}
+{{/each}}

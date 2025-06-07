@@ -1,7 +1,8 @@
-from adapter.repository.nosql import NoSQL, NoSQLSession
-from typing import Any, Dict, Optional, TypeVar, List
+from typing import Any, Optional, Callable, Awaitable, Dict, TypeVar, Generic, List, Protocol
+from .nosql import NoSQL, NoSQLSession
 
 T = TypeVar("T")
+
 
 class BaseNoSQL(NoSQL):
     def __init__(self, connection_string: str, options: Optional[Any] = None):
@@ -44,7 +45,7 @@ class BaseNoSQL(NoSQL):
 
 
 class BaseNoSQLSession(NoSQLSession):
-    async def with_transaction(self, fn: Any) -> None:
+    async def with_transaction(self, fn: Callable[[Any], Awaitable[None]]) -> None:
         # トランザクション実行の実装をお願いします。
         pass
 

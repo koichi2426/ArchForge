@@ -1,50 +1,51 @@
-from typing import Any, List, Protocol, Optional
-
-class Rows(Protocol):
-    def next(self) -> bool:
-        ...
-
-    def scan(self, *dest: Any) -> None:
-        ...
-
-    def err(self) -> Optional[Exception]:
-        ...
-
-    def close(self) -> None:
-        ...
-
-
-class Row(Protocol):
-    def scan(self, *dest: Any) -> None:
-        ...
-
-
-class Tx(Protocol):
-    async def execute(self, ctx: Any, query: str, *args: Any) -> None:
-        ...
-
-    async def query(self, ctx: Any, query: str, *args: Any) -> Rows:
-        ...
-
-    async def query_row(self, ctx: Any, query: str, *args: Any) -> Row:
-        ...
-
-    async def commit(self) -> None:
-        ...
-
-    async def rollback(self) -> None:
-        ...
+from typing import Any, Optional, Protocol, List, Awaitable
 
 
 class SQL(Protocol):
     async def execute(self, ctx: Any, query: str, *args: Any) -> None:
-        ...
+        pass
 
-    async def query(self, ctx: Any, query: str, *args: Any) -> Rows:
-        ...
+    async def query(self, ctx: Any, query: str, *args: Any) -> 'Rows':
+        pass
 
-    async def query_row(self, ctx: Any, query: str, *args: Any) -> Row:
-        ...
+    async def query_row(self, ctx: Any, query: str, *args: Any) -> 'Row':
+        pass
 
-    async def begin_transaction(self, ctx: Any) -> Tx:
-        ...
+    async def begin_transaction(self, ctx: Any) -> 'Tx':
+        pass
+
+
+class Rows(Protocol):
+    def next(self) -> bool:
+        pass
+
+    def scan(self, *dest: Any) -> None:
+        pass
+
+    def err(self) -> Optional[Exception]:
+        pass
+
+    def close(self) -> None:
+        pass
+
+
+class Row(Protocol):
+    def scan(self, *dest: Any) -> None:
+        pass
+
+
+class Tx(Protocol):
+    async def execute(self, ctx: Any, query: str, *args: Any) -> None:
+        pass
+
+    async def query(self, ctx: Any, query: str, *args: Any) -> 'Rows':
+        pass
+
+    async def query_row(self, ctx: Any, query: str, *args: Any) -> 'Row':
+        pass
+
+    async def commit(self) -> None:
+        pass
+
+    async def rollback(self) -> None:
+        pass
