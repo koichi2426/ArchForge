@@ -1,0 +1,24 @@
+from typing import Optional
+from uuid import UUID
+
+from sqlalchemy.orm import Session
+
+from ..domain.entity import {{entityName}}
+from ..domain.repository import {{repositoryName}}Repository
+from ..infrastructure.sql import {{sqlImplName}}
+
+class {{name}}:
+    def __init__(self, session: Session):
+        self._repository: {{repositoryName}}Repository = {{sqlImplName}}(session)
+
+    def save(self, entity: {{entityName}}) -> None:
+        self._repository.save(entity)
+
+    def find_by_id(self, id: UUID) -> Optional[{{entityName}}]:
+        return self._repository.find_by_id(id)
+
+    def find_all(self) -> list[{{entityName}}]:
+        return self._repository.find_all()
+
+    def delete(self, id: UUID) -> None:
+        self._repository.delete(id) 

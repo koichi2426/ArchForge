@@ -1,0 +1,14 @@
+from ..domain.valueObject import {{valueObjectName}}
+
+class {{name}}Impl({{valueObjectName}}):
+    def __init__(
+        self,
+        {{#each properties}}
+        {{name}}: {{type}}{{#unless @last}},{{/unless}}
+        {{/each}}
+    ):
+        super().__init__(
+            {{#each properties}}
+            {{name}}={{name}}{{#unless @last}},{{/unless}}
+            {{/each}}
+        ) 

@@ -1,0 +1,12 @@
+from typing import Dict, Any
+
+class {{name}}:
+    def present(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        ユースケースの結果をAPIレスポンス形式に変換
+        """
+        return {
+            {{#each responseProperties}}
+            "{{name}}": data["{{name}}"]{{#unless @last}},{{/unless}}
+            {{/each}}
+        } 

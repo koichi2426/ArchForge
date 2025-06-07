@@ -1,0 +1,32 @@
+from typing import List, Optional
+from uuid import UUID
+
+from sqlalchemy.orm import Session
+
+from ..domain.entity import {{entityName}}
+from ..domain.repository import {{repositoryName}}Repository
+from .entity_impl import {{entityImplName}}
+
+class {{name}}Impl({{repositoryName}}Repository):
+    def __init__(self, session: Session):
+        self._session = session
+
+    def save(self, entity: {{entityName}}) -> None:
+        # SQLAlchemyを使用した永続化処理を実装
+        self._session.add(entity)
+        self._session.commit()
+
+    def find_by_id(self, id: UUID) -> Optional[{{entityName}}]:
+        # SQLAlchemyを使用した検索処理を実装
+        return self._session.query({{entityImplName}}).filter_by(id=id).first()
+
+    def find_all(self) -> List[{{entityName}}]:
+        # SQLAlchemyを使用した全件取得処理を実装
+        return self._session.query({{entityImplName}}).all()
+
+    def delete(self, id: UUID) -> None:
+        # SQLAlchemyを使用した削除処理を実装
+        entity = self.find_by_id(id)
+        if entity:
+            self._session.delete(entity)
+            self._session.commit() 

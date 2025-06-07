@@ -1,0 +1,56 @@
+from typing import List, Optional
+from uuid import UUID
+
+from pymongo.database import Database
+from pymongo.collection import Collection
+
+from ..domain.entity import {{entityName}}
+from ..domain.repository import {{repositoryName}}Repository
+from .entity_impl import {{entityImplName}}
+
+class {{name}}Impl({{repositoryName}}Repository):
+    def __init__(self, database: Database):
+        self._collection: Collection = database.{{collectionName}}
+
+    def save(self, entity: {{entityName}}) -> None:
+        # MongoDBを使用した永続化処理を実装
+        document = self._convert_to_document(entity)
+        self._collection.update_one(
+            {"_id": str(entity.id)},
+            {"$set": document},
+            upsert=True
+        )
+
+    def find_by_id(self, id: UUID) -> Optional[{{entityName}}]:
+        # MongoDBを使用した検索処理を実装
+        document = self._collection.find_one({"_id": str(id)})
+        if document:
+            return self._convert_to_entity(document)
+        return None
+
+    def find_all(self) -> List[{{entityName}}]:
+        # MongoDBを使用した全件取得処理を実装
+        documents = self._collection.find()
+        return [self._convert_to_entity(doc) for doc in documents]
+
+    def delete(self, id: UUID) -> None:
+        # MongoDBを使用した削除処理を実装
+        self._collection.delete_one({"_id": str(id)})
+
+    def _convert_to_document(self, entity: {{entityName}}) -> dict:
+        # エンティティをMongoDBドキュメントに変換
+        return {
+            "_id": str(entity.id),
+            {{#each properties}}
+            "{{name}}": entity.{{name}}{{#unless @last}},{{/unless}}
+            {{/each}}
+        }
+
+    def _convert_to_entity(self, document: dict) -> {{entityName}}:
+        # MongoDBドキュメントをエンティティに変換
+        return {{entityImplName}}(
+            id=UUID(document["_id"]),
+            {{#each properties}}
+            {{name}}=document["{{name}}"]{{#unless @last}},{{/unless}}
+            {{/each}}
+        ) 

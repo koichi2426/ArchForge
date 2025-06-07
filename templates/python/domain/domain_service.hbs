@@ -1,0 +1,12 @@
+from abc import ABC, abstractmethod
+from typing import List
+
+from .entity import {{entityName}}
+
+class {{name}}Service(ABC):
+    @abstractmethod
+    def execute(self, entities: List[{{entityName}}]) -> None:
+        """
+        ドメインサービスで実行する処理を実装
+        """
+        pass 

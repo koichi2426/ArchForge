@@ -1,0 +1,23 @@
+from typing import Optional
+from uuid import UUID
+
+from ..domain.entity import {{entityName}}
+
+class {{name}}Impl({{entityName}}):
+    def __init__(
+        self,
+        id: UUID,
+        {{#each properties}}
+        {{name}}: {{type}}{{#if optional}} = None{{/if}}{{#unless @last}},{{/unless}}
+        {{/each}}
+    ):
+        super().__init__(
+            id=id,
+            {{#each properties}}
+            {{name}}={{name}}{{#unless @last}},{{/unless}}
+            {{/each}}
+        )
+
+    def __post_init__(self):
+        # インフラストラクチャ固有のバリデーションロジックをここに実装
+        super().__post_init__() 

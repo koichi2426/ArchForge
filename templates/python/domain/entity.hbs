@@ -1,0 +1,14 @@
+from dataclasses import dataclass
+from typing import Optional
+from uuid import UUID
+
+@dataclass
+class {{name}}:
+    id: UUID
+    {{#each properties}}
+    {{name}}: {{type}}{{#if optional}} = None{{/if}}
+    {{/each}}
+
+    def __post_init__(self):
+        # バリデーションロジックをここに実装
+        pass 

@@ -1,0 +1,42 @@
+from typing import Dict, Any
+from uuid import UUID
+
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
+
+from ..usecase.usecase import {{usecaseName}}UseCase
+from .presenter import {{presenterName}}
+
+router = APIRouter()
+
+class {{name}}Request(BaseModel):
+    {{#each requestProperties}}
+    {{name}}: {{type}}
+    {{/each}}
+
+class {{name}}Response(BaseModel):
+    {{#each responseProperties}}
+    {{name}}: {{type}}
+    {{/each}}
+
+@router.post("/{{endpoint}}", response_model={{name}}Response)
+async def {{name.lower}}(
+    request: {{name}}Request,
+    usecase: {{usecaseName}}UseCase = Depends(),
+    presenter: {{presenterName}} = Depends()
+) -> {{name}}Response:
+    try:
+        # リクエストをユースケースの入力形式に変換
+        input_data = {
+            {{#each requestProperties}}
+            "{{name}}": request.{{name}}{{#unless @last}},{{/unless}}
+            {{/each}}
+        }
+
+        # ユースケースを実行
+        result = usecase.execute(input_data)
+
+        # 結果をプレゼンターで変換
+        return presenter.present(result)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) 
