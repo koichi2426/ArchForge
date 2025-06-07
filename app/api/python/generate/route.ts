@@ -416,82 +416,82 @@ export async function POST(req: NextRequest) {
     domains.forEach((domain: any) => {
         const domainContent = generateDomainFileContent(domain, domains, language);
         const domainFileName = `${domain.name.toLowerCase()}.py`;
-        zip.file(`domain/${domainFileName}`, domainContent);
+        zip.file(`${projectName}/domain/${domainFileName}`, domainContent);
 
         // リポジトリの生成
         const repositoryContent = generateRepositoryContent(domain, language);
         const repositoryFileName = `${domain.name.toLowerCase()}repository.py`;
-        zip.file(`domain/${repositoryFileName}`, repositoryContent);
+        zip.file(`${projectName}/domain/${repositoryFileName}`, repositoryContent);
 
         // エンティティ実装の生成
         if (domain.domainType === 'entity') {
             const entityImplContent = generateEntityImplContent(domain, language);
             const entityImplFileName = `${domain.name.toLowerCase()}_impl.py`;
-            zip.file(`infrastructure/${entityImplFileName}`, entityImplContent);
+            zip.file(`${projectName}/infrastructure/${entityImplFileName}`, entityImplContent);
         }
 
         // 値オブジェクト実装の生成
         if (domain.domainType === 'valueObject') {
             const valueObjectImplContent = generateValueObjectImplContent(domain, language);
             const valueObjectImplFileName = `${domain.name.toLowerCase()}_impl.py`;
-            zip.file(`infrastructure/${valueObjectImplFileName}`, valueObjectImplContent);
+            zip.file(`${projectName}/infrastructure/${valueObjectImplFileName}`, valueObjectImplContent);
         }
 
         // ドメインサービス実装の生成
         if (domain.domainType === 'domainService') {
             const domainServiceImplContent = generateDomainServiceImplContent(domain, language);
             const domainServiceImplFileName = `${domain.name.toLowerCase()}_impl.py`;
-            zip.file(`infrastructure/${domainServiceImplFileName}`, domainServiceImplContent);
+            zip.file(`${projectName}/infrastructure/${domainServiceImplFileName}`, domainServiceImplContent);
         }
 
         // SQLインフラストラクチャの生成
         const sqlInfrastructureContent = generateSqlInfrastructureContent(domain, language);
         const sqlInfrastructureFileName = `${domain.name.toLowerCase()}_sql_impl.py`;
-        zip.file(`infrastructure/${sqlInfrastructureFileName}`, sqlInfrastructureContent);
+        zip.file(`${projectName}/infrastructure/${sqlInfrastructureFileName}`, sqlInfrastructureContent);
 
         // NoSQLインフラストラクチャの生成
         const noSqlInfrastructureContent = generateNoSqlInfrastructureContent(domain, language);
         const noSqlInfrastructureFileName = `${domain.name.toLowerCase()}_nosql_impl.py`;
-        zip.file(`infrastructure/${noSqlInfrastructureFileName}`, noSqlInfrastructureContent);
+        zip.file(`${projectName}/infrastructure/${noSqlInfrastructureFileName}`, noSqlInfrastructureContent);
     });
 
     // ユースケースファイルの生成
     usecases.forEach((usecase: any) => {
         const usecaseContent = generateUsecaseContent(usecase, domains, language);
         const usecaseFileName = `${usecase.name.toLowerCase()}.py`;
-        zip.file(`usecase/${usecaseFileName}`, usecaseContent);
+        zip.file(`${projectName}/usecase/${usecaseFileName}`, usecaseContent);
 
         // アクションの生成
         const actionContent = generateActionContent(usecase, language);
         const actionFileName = `${usecase.name.toLowerCase()}_action.py`;
-        zip.file(`adapter/${actionFileName}`, actionContent);
+        zip.file(`${projectName}/adapter/${actionFileName}`, actionContent);
 
         // プレゼンターの生成
         const presenterContent = generatePresenterContent(usecase, language);
         const presenterFileName = `${usecase.name.toLowerCase()}_presenter.py`;
-        zip.file(`adapter/${presenterFileName}`, presenterContent);
+        zip.file(`${projectName}/adapter/${presenterFileName}`, presenterContent);
     });
 
     // SQLリポジトリの生成
     domains.forEach((domain: any) => {
         const repositorySqlContent = generateRepositorySqlContent(domain, language);
         const repositorySqlFileName = `${domain.name.toLowerCase()}_sql_repository.py`;
-        zip.file(`adapter/${repositorySqlFileName}`, repositorySqlContent);
+        zip.file(`${projectName}/adapter/${repositorySqlFileName}`, repositorySqlContent);
 
         const sqlContent = generateSqlContent(domain, language);
         const sqlFileName = `${domain.name.toLowerCase()}_sql.py`;
-        zip.file(`adapter/${sqlFileName}`, sqlContent);
+        zip.file(`${projectName}/adapter/${sqlFileName}`, sqlContent);
     });
 
     // NoSQLリポジトリの生成
     domains.forEach((domain: any) => {
         const repositoryNoSqlContent = generateRepositoryNoSqlContent(domain, language);
         const repositoryNoSqlFileName = `${domain.name.toLowerCase()}_nosql_repository.py`;
-        zip.file(`adapter/${repositoryNoSqlFileName}`, repositoryNoSqlContent);
+        zip.file(`${projectName}/adapter/${repositoryNoSqlFileName}`, repositoryNoSqlContent);
 
         const noSqlContent = generateNoSqlContent(domain, language);
         const noSqlFileName = `${domain.name.toLowerCase()}_nosql.py`;
-        zip.file(`adapter/${noSqlFileName}`, noSqlContent);
+        zip.file(`${projectName}/adapter/${noSqlFileName}`, noSqlContent);
     });
 
     // ZIPファイルの生成
